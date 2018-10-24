@@ -24,12 +24,12 @@ def main():
 
     tickerL = read_ticker(s)
     for ticker in tickerL:
-        if (read_exist(s, ticker)) is False:
-            try:
-                model_list = map_stock(Config,ticker,'compact',today_only=False)
-                bulk_save(s, model_list)
-            except:
-                pass
+        # if (read_exist(s, ticker)) is False:
+        try:
+            model_list = map_stock(Config,ticker,'compact',today_only=False)
+            bulk_save(s, model_list)
+        except:
+            pass
 
 
 

@@ -15,6 +15,7 @@ def fetch_index():
         data = page_d[0]
         data = data.drop(columns=['Fillings', 'Location', 'First Added', 'CIK', 'Founded'])
         data.index.name = 'symbol'
+        print(data)
         return data
     except Exception as e:
         print(e)
