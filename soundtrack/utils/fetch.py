@@ -13,9 +13,8 @@ def fetch_index():
         page_d = pd.read_html(url.data,header=0,keep_default_na=False) # NA -> NaN is National Bank of Canada
         page_d[0].columns = ['symbol', 'company', 'Fillings', 'sector', 'industry', 'Location', 'First Added', 'CIK', 'Founded']
         data = page_d[0]
-        data = data.drop(columns=['Fillings', 'Location', 'First Added', 'CIK', 'Founded'])
+        data = data.drop(['Fillings', 'Location', 'First Added', 'CIK', 'Founded'], axis=1)
         data.index.name = 'symbol'
-        print(data)
         return data
     except Exception as e:
         print(e)
