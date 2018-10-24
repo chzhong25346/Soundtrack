@@ -2,6 +2,8 @@ import os
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
+import logging
+logger = logging.getLogger('main.db')
 
 
 class Db():
@@ -34,4 +36,5 @@ class Db():
 
     def session(self):
         Session = sessionmaker(bind=self.engine)
+        logger.info(self.engine)
         return Session()

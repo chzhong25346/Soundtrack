@@ -18,7 +18,6 @@ def map_index():
 
 
 def map_stock(config,ticker,size,today_only):
-    print(ticker)
     df = get_daily_adjusted(config,ticker,size,today_only)
     df_records = df.to_dict('records')
     model_instnaces = [Stock(

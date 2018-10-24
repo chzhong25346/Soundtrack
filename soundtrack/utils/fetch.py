@@ -4,6 +4,9 @@ import json
 import time
 from datetime import datetime as dt
 from alpha_vantage.timeseries import TimeSeries
+import logging
+logger = logging.getLogger('main.fetch')
+
 
 def fetch_index():
     page= 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
@@ -17,7 +20,7 @@ def fetch_index():
         data.index.name = 'symbol'
         return data
     except Exception as e:
-        print(e)
+        logger.error('Unable to fetch index! {%s}' % e)
 
 
 def get_daily_adjusted(config,ticker,size,today_only):
@@ -39,4 +42,4 @@ def get_daily_adjusted(config,ticker,size,today_only):
             df = df.reset_index()
             return df
     except Exception as e:
-        print(e)
+        logger.error(e)
