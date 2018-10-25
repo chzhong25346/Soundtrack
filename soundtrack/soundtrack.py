@@ -50,13 +50,13 @@ def update(type, today_only):
     # Create table based on Models
     db.create_all()
 
-    if has_index is not None:
+    if has_index(s) == None:
         # Fetch/Mapping/Write Index
         bulk_save(s, map_index())
 
     tickerL = read_ticker(s)
     for ticker in tickerL:
-        if read_exist(s, ticker) is not None:
+        if read_exist(s, ticker) == False:
             try:
                 logger.info('Processing: %s' % (ticker))
                 model_list = map_quote(Config,ticker,type,today_only)
