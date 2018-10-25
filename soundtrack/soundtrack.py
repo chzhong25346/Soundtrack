@@ -7,17 +7,17 @@ from .report.report import report
 import logging
 import logging.config
 import getopt
+import time
+import math
 import os, sys
-
-# log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'soundtrack\log\logging.conf')
-# logging.config.fileConfig(log_file_path)
-
 logging.config.fileConfig('soundtrack/log/logging.conf')
 logger = logging.getLogger('main')
 
+
 def main(argv):
+    time_start = time.time()
     try:
-        opts, args = getopt.getopt(argv,"u:r",["update=", "report="])
+        opts, args = getopt.getopt(argv,"u:r:s",["update=", "report=", "simulate="])
     except getopt.GetoptError:
         print('run.py -u <full|compact>')
         print('run.py -r')
@@ -38,8 +38,13 @@ def main(argv):
                 type = arg
                 today_only = True
                 update(type, today_only)  # Compact update for today
-        elif opt in ("-r", "--report"):
+        elif opt in ("-r", "--report"):  # Report
             analyze()
+        elif opt in ("-s", "--simulate"): # Simulate
+            pass
+    elapsed = math.ceil((time.time() - time_start)/60)
+    logger.info('Program took ' + str(elapsed) + ' minutes to run')
+
 
 
 def update(type, today_only):
