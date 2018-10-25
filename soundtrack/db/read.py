@@ -1,4 +1,4 @@
-from ..models import Index, Stock
+from ..models import Index, Quote
 from sqlalchemy import exists
 import logging
 logger = logging.getLogger('main.read')

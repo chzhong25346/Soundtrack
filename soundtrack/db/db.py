@@ -1,6 +1,7 @@
 import os
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects import mysql
 from sqlalchemy import *
 import logging
 logger = logging.getLogger('main.db')
@@ -21,9 +22,11 @@ class Db():
     String = String
     Integer = Integer
     Float = Float
+    Boolean = Boolean
     DateTime = DateTime
     ForeignKey = ForeignKey
     relationship = relationship
+    BIGINT = mysql.BIGINT
 
 
     def get_engine(self):

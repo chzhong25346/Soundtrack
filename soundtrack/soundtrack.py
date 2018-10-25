@@ -1,19 +1,23 @@
 from .utils.config import Config
 from .db.db import Db
-from .db.mapping import map_index, map_stock
+from .db.mapping import map_index, map_quote
 from .db.write import bulk_save
 from .db.read import read_ticker, has_index
+from .report.report import report
 import logging
 import logging.config
 import getopt
-import sys
+import os, sys
 
-logging.config.fileConfig('soundtrack\log\logging.conf')
+# log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'soundtrack\log\logging.conf')
+# logging.config.fileConfig(log_file_path)
+
+logging.config.fileConfig('soundtrack/log/logging.conf')
 logger = logging.getLogger('main')
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv,"u:",["update="])
+        opts, args = getopt.getopt(argv,"u:r",["update=", "report="])
     except getopt.GetoptError:
         print('run.py -u <full|compact>')
         print('run.py -r')
@@ -34,7 +38,8 @@ def main(argv):
                 type = arg
                 today_only = True
                 update(type, today_only)  # Compact update for today
-
+        elif opt in ("-r", "--report"):
+            analyze()
 
 
 def update(type, today_only):
@@ -53,7 +58,18 @@ def update(type, today_only):
     for ticker in tickerL:
         try:
             logger.info('Processing: %s' % (ticker))
-            model_list = map_stock(Config,ticker,type,today_only)
+            model_list = map_quote(Config,ticker,type,today_only)
             bulk_save(s, model_list)
         except:
             logger.error('Unable to process: %s' % (ticker))
+    s.close()
+
+
+def analyze():
+    Config.DB_NAME='sp500'
+    db = Db(Config)
+    s = db.session()
+    e = db.get_engine()
+    # Create table based on Models
+    db.create_all()
+    report(s, e)
