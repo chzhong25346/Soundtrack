@@ -13,9 +13,9 @@ def trend_potential(ticker, df):
     today = df.iloc()[-1]
     range = (ema5/ema21)-1
     if (-0.005<=range<=0 and today['close']>=ema5):
-        return {'ticker':ticker,'uptrend':True}
+        return {'symbol':ticker,'uptrend':True}
     elif (0.005>=range>=0 and today['close']<=ema5):
-        return {'ticker':ticker,'downtrend':True}
+        return {'symbol':ticker,'downtrend':True}
 
 
 def ema(df, span):
@@ -24,6 +24,6 @@ def ema(df, span):
     return today's ema
     '''
     df = df.sort_index(ascending=True).last("3M")
-    df = df['adjusted close'].ewm(span=span, adjust=False).mean()
+    df = df['adjusted'].ewm(span=span, adjust=False).mean()
 
     return df.loc[df.index.max()]

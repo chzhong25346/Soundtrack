@@ -29,6 +29,7 @@ class Quote(db.Model):
 class Report(db.Model):
     __tablename__ = 'report'
     id = db.Column(db.String(40), unique=True, nullable=False, primary_key=True)
+    date = db.Column(db.DateTime, nullable=False)
     symbol = db.Column(db.String(6), db.ForeignKey("index.symbol"), nullable=False)
     yr_high = db.Column(db.Boolean, nullable=True)
     yr_low = db.Column(db.Boolean, nullable=True)

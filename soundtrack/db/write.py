@@ -11,7 +11,8 @@ def bulk_save(session, model_list):
     try:
         session.bulk_save_objects(model_list)
         session.commit()
+        logger.info('Worte to Db.')
     except Exception as e:
-        logger.error('Unable to write!')
+        logger.error(e)
         session.rollback()
         pass

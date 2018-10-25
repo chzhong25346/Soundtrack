@@ -3,6 +3,8 @@ import datetime as dt
 from ..utils.fetch import fetch_index, get_daily_adjusted
 from ..utils.util import gen_id
 from ..models import Index, Quote, Report
+import logging
+logger = logging.getLogger('main.report')
 
 
 def map_index():
@@ -36,20 +38,21 @@ def map_quote(config,ticker,size,today_only):
     return model_instnaces
 
 
-def map_report(config,ticker,date):
-    date = dt.datetime.today().strftime("%m-%d-%Y")
+def map_report(config,df):
+    date = dt.datetime.today().strftime("%Y-%m-%d")
     df_records = df.to_dict('records')
     model_instnaces = [Report(
-        id = gen_id(ticker+str(date)),
-        symbol = ticker,
+        symbol = record['symbol'],
+        date = date,
+        id = gen_id(record['symbol']+str(date)),
         yr_high = record['yr_high'],
         yr_low = record['yr_low'],
-        industry = record['industry'],
         downtrend = record['downtrend'],
         uptrend = record['uptrend'],
         high_volume = record['high_volume'],
         low_volume = record['low_volume'],
         pattern = record['pattern']
     ) for record in df_records]
+    logger.info('Mapping completed.')
 
     return model_instnaces

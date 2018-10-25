@@ -1,6 +1,6 @@
 from .utils.config import Config
 from .db.db import Db
-from .db.mapping import map_index, map_quote
+from .db.mapping import map_index, map_quote, map_report
 from .db.write import bulk_save
 from .db.read import read_ticker, has_index, read_exist
 from .report.report import report
@@ -73,4 +73,7 @@ def analyze():
     e = db.get_engine()
     # Create table based on Models
     db.create_all()
-    report(s, e)
+    df = report(s)
+    model_list = map_report(Config,df)
+    bulk_save(s, model_list)
+    s.close()
