@@ -2,7 +2,7 @@ from .utils.config import Config
 from .db.db import Db
 from .db.mapping import map_index, map_quote
 from .db.write import bulk_save
-from .db.read import read_ticker, has_index
+from .db.read import read_ticker, has_index, read_exist
 from .report.report import report
 import logging
 import logging.config
@@ -56,12 +56,13 @@ def update(type, today_only):
 
     tickerL = read_ticker(s)
     for ticker in tickerL:
-        try:
-            logger.info('Processing: %s' % (ticker))
-            model_list = map_quote(Config,ticker,type,today_only)
-            bulk_save(s, model_list)
-        except:
-            logger.error('Unable to process: %s' % (ticker))
+        if read_exist(s, ticker) is not None:
+            try:
+                logger.info('Processing: %s' % (ticker))
+                model_list = map_quote(Config,ticker,type,today_only)
+                bulk_save(s, model_list)
+            except:
+                logger.error('Unable to process: %s' % (ticker))
     s.close()
 
 

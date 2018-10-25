@@ -8,9 +8,9 @@ def read_ticker(s):
     return list
 
 
-# def read_exist(s, ticker):
-#     ret = s.query(exists().where(Stock.symbol==ticker)).scalar()
-#     return ret
+def read_exist(s, ticker):
+    ret = s.query(exists().where(Quote.symbol==ticker)).scalar()
+    return ret
 
 
 # def has_table(e, tname):
