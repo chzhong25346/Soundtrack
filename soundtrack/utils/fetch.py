@@ -2,6 +2,7 @@ import urllib3,certifi
 import pandas as pd
 import json
 import time
+from ..utils.util import normalize_sp500
 from datetime import datetime as dt
 from alpha_vantage.timeseries import TimeSeries
 import logging
@@ -18,6 +19,7 @@ def fetch_index():
         data = page_d[0]
         data = data.drop(['Fillings', 'Location', 'First Added', 'CIK', 'Founded'], axis=1)
         data.index.name = 'symbol'
+        data = normalize_sp500(data)
         return data
     except Exception as e:
         logger.error('Unable to fetch index! {%s}' % e)
