@@ -17,7 +17,7 @@ logger = logging.getLogger('main')
 def main(argv):
     time_start = time.time()
     try:
-        opts, args = getopt.getopt(argv,"u:r:s",["update=", "report=", "simulate="])
+        opts, args = getopt.getopt(argv,"u:rs",["update=", "report=", "simulate="])
     except getopt.GetoptError:
         print('run.py -u <full|compact>')
         print('run.py -r')
@@ -25,7 +25,7 @@ def main(argv):
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('run.py -u <full|compact>')
+            print('run.py -u <full|compact>aaaa')
             print('run.py -r')
             print('run.py -s')
             sys.exit()
@@ -46,7 +46,6 @@ def main(argv):
     logger.info('Program took ' + str(elapsed) + ' minutes to run')
 
 
-
 def update(type, today_only):
     Config.DB_NAME='sp500'
     db = Db(Config)
@@ -61,13 +60,13 @@ def update(type, today_only):
 
     tickerL = read_ticker(s)
     for ticker in tickerL:
-        if read_exist(s, ticker) == False:
-            try:
-                logger.info('Processing: %s' % (ticker))
-                model_list = map_quote(Config,ticker,type,today_only)
-                bulk_save(s, model_list)
-            except:
-                logger.error('Unable to process: %s' % (ticker))
+        # if read_exist(s, ticker) == False:
+        try:
+            logger.info('Processing: %s' % (ticker))
+            model_list = map_quote(Config,ticker,type,today_only)
+            bulk_save(s, model_list)
+        except:
+            logger.error('Unable to process: %s' % (ticker))
     s.close()
 
 
@@ -82,3 +81,7 @@ def analyze():
     model_list = map_report(Config,df)
     bulk_save(s, model_list)
     s.close()
+
+
+def simulate():
+    pass
