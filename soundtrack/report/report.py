@@ -19,8 +19,10 @@ def report(s):
     report_df = df_empty(columns, dtypes)
 
     for symbol in tickerL:
-        # read daily db return df
+        # read daily db return df in random order
         df = pd.read_sql(s.query(Quote).filter(Quote.symbol == symbol).statement, s.bind, index_col='date')
+        # sort by old to new
+        df.sort_index(inplace=True)
         # unusual volume stickers append to df
         report_df = report_df.append(unusual_volume(symbol,df),ignore_index=True)
         # unusual trend stickers append to df
