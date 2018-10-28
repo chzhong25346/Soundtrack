@@ -38,3 +38,26 @@ class Report(db.Model):
     high_volume = db.Column(db.Boolean, nullable=True)
     low_volume = db.Column(db.Boolean, nullable=True)
     pattern = db.Column(db.String(20), nullable=True)
+
+
+class Holding(db.Model):
+    __tablename__ = 'holding'
+    symbol = db.Column(db.String(6), db.ForeignKey("index.symbol"), primary_key=True, nullable=False)
+    avg_cost = db.Column(db.Float, nullable=True)
+    book_value = db.Column(db.Float, nullable=True)
+    change_dollar = db.Column(db.Float, nullable=True)
+    change_percent = db.Column(db.Float, nullable=True)
+    mkt_price = db.Column(db.Float, nullable=True)
+    mkt_value = db.Column(db.Float, nullable=True)
+    quantity = db.Column(db.BIGINT, nullable=True)
+
+
+class Transaction(db.Model):
+    __tablename__ = 'transaction'
+    id = db.Column(db.String(40), unique=True, nullable=False, primary_key=True)
+    symbol = db.Column(db.String(6), db.ForeignKey("index.symbol"), nullable=False)
+    date = db.Column(db.DateTime, nullable=False)
+    price = db.Column(db.Float, nullable=True)
+    quantity = db.Column(db.BIGINT, nullable=True)
+    settlement = db.Column(db.Float, nullable=True)
+    type = db.Column(db.String(6), nullable=False)

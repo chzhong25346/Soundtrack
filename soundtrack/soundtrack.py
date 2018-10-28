@@ -4,6 +4,7 @@ from .db.mapping import map_index, map_quote, map_report
 from .db.write import bulk_save
 from .db.read import read_ticker, has_index, read_exist
 from .report.report import report
+from .simulation.simulator import simulator
 import logging
 import logging.config
 import getopt
@@ -41,7 +42,7 @@ def main(argv):
         elif opt in ("-r", "--report"):  # Report
             analyze()
         elif opt in ("-s", "--simulate"): # Simulate
-            pass
+            simulate()
     elapsed = math.ceil((time.time() - time_start)/60)
     logger.info('Program took ' + str(elapsed) + ' minutes to run')
 
@@ -84,4 +85,10 @@ def analyze():
 
 
 def simulate():
-    pass
+    Config.DB_NAME='sp500'
+    db = Db(Config)
+    s = db.session()
+    e = db.get_engine()
+    # Create table based on Models
+    db.create_all()
+    simulator(s)

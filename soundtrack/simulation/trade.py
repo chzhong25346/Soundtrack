@@ -1,31 +1,34 @@
 import datetime as dt
 import pandas as pd
 import logging
-from db.mysql import *
-from db.read import *
-from db.write import *
-from db.remove import *
-from .trigger import *
+# from db.mysql import *
+# from db.read import *
+# from db.write import *
+# from db.remove import *
+# from .trigger import *
+from ..db.mapping import map_transaction, map_holding
+from ..db.write import bulk_save
+from ..models import Transaction, Holding
 logger = logging.getLogger('main.trade')
 
 
-def execute_order(list,cap,type,engine):
+def execute_order(list,cap,type,s):
     # BUY or SELL
     if(type=='buy'):
         # for each quote as dict in buy list
         for dict in list:
             # execute buy function
-            buy(dict,cap,engine)
+            buy(dict,cap,s)
     elif(type=='sell'):
         # for each quote as dict in buy list
         for dict in list:
             # execute buy function
-            sell(dict,cap,engine)
+            sell(dict,cap,s)
 
 
-def buy(dict,cap,engine):
-    build_transaction(dict,cap,'buy',engine)
-    build_holding(dict,engine)
+def buy(dict,cap,s):
+    build_transaction(dict,cap,'buy',s)
+    build_holding(dict,s)
 
 
 def sell(dict,cap,engine):
@@ -35,12 +38,9 @@ def sell(dict,cap,engine):
         build_holding(dict,engine)
 
 
-def build_transaction(dict,cap,type,engine):
-    '''
-    construct dataframe of transaction and write to db
-    '''
+def build_transaction(dict,cap,type,s):
     # current date
-    date = dt.datetime.today().strftime("%m-%d-%Y")
+    date = dt.datetime.today().strftime("%Y-%m-%d")
     # ticker,price in list format retrieved from dict
     ticker,price = zip(*dict.items())
     # ticker value
@@ -54,9 +54,9 @@ def build_transaction(dict,cap,type,engine):
     # if type is sell, qty is negative and settlement is potitive(income)
     elif(type == 'sell'):
         # read holding table, if False, table not exits
-        df_existing_holding = read_table_df_nodrop_Engine('holding',engine,'ticker')
+        df_existing_holding = pd.read_sql(s.query(Holding).statement, s.bind, index_col='symbol')
         # if there is holding table and ticker is found in holding df
-        if (df_existing_holding is not False and ticker in df_existing_holding.index.unique()):
+        if (ticker in df_existing_holding.index.unique()):
             # if sell off all
             if cap == 10000:
                 # retrieve quntity which is negative
@@ -72,31 +72,28 @@ def build_transaction(dict,cap,type,engine):
             logger.debug('No table or not holding: %s, cannot %s' % (ticker,type))
             return False
     # TRANSACTION dict
-    dict_transaction = {'date':date, 'ticker':ticker, 'type':type,'quantity':qty,'price':price,'settlement':settlement}
+    dict_transaction = {'date':date, 'symbol':ticker, 'type':type,'quantity':qty,'price':price,'settlement':settlement}
     # TRANSACTION dataframe
     df_transaction = pd.DataFrame.from_records([dict_transaction],index='date')
     df_transaction.index = pd.to_datetime(df_transaction.index)
-    # write df to sql - write.py
-    df_to_sql_prikey('transaction',df_transaction,engine,'date')
+    # mappiong df to sql - db.mapping, and save to db - db.write
+    bulk_save(s, map_transaction(df_transaction))
     logger.debug('(ORDER) %s %s %s shares at %s/share' % (type,ticker,qty,price))
 
 
-def build_holding(dict,engine):
-    '''
-    construt dataframe and write/udpate to db
-    '''
+def build_holding(dict,s):
     # ticker,price in list format retrieved from dict
     ticker,price = zip(*dict.items())
     # ticker value
     ticker = ticker[0]
     # price value is float
     price = float(price[0])
-    # get current holding df
-    transaction = read_table_df_nodrop_Engine('transaction',engine,'date')
+    # get transaction
+    transaction = pd.read_sql(s.query(Transaction).statement, s.bind, index_col='id')
     # all rows in specified ticker
-    df_ticker = transaction[(transaction['ticker']==ticker)]
+    df_ticker = transaction[(transaction['symbol']==ticker)]
     # all rows in specified ticker and type = buy
-    df_ticker_buy = transaction[(transaction['ticker']==ticker) & (transaction['type']=='buy')]
+    df_ticker_buy = transaction[(transaction['symbol']==ticker) & (transaction['type']=='buy')]
     # sum up quantity of this ticker all of buy and sell records
     qty = df_ticker['quantity'].sum()
     # if there is nothing holding on
@@ -113,22 +110,16 @@ def build_holding(dict,engine):
         change_dollar = mkt_value - book_value
         change_percent = (mkt_value/book_value-1)*100
         # construct holding dictionary
-        dict_holding = {'ticker':ticker,'quantity':qty,'avg_cost':avg_cost,'mkt_price':mkt_price,'book_value':book_value,'mkt_value':mkt_value,'change_dollar':round(change_dollar,2),'change_percent':round(change_percent,2)}
+        dict_holding = {'symbol':ticker,'quantity':qty,'avg_cost':avg_cost,'mkt_price':mkt_price,'book_value':book_value,'mkt_value':mkt_value,'change_dollar':round(change_dollar,2),'change_percent':round(change_percent,2)}
         # constract holding dataframe from the dictionary
         df_holding = pd.DataFrame.from_records([dict_holding])
-        # read holding table, if False, table not exits
-        df_existing_holding = read_table_df_nodrop_Engine('holding',engine,'ticker')
-        # table not exists
-        if df_existing_holding is False:
-            # new write new table
-            df_to_sql_prikey('holding',df_holding,engine,'ticker')
-        # table already exists, remove existing row and re-write
-        else:
-            # delete ticker in holding table - remove.py
-            delete_by_fieldValue_Engine('holding','ticker',ticker,engine)
-            # update new rows of this ticker - write.py
-            df_to_sql_prikey('holding',df_holding,engine,'ticker')
+        # delete ticker in holding table
+        s.query(Holding).filter(Holding.symbol == ticker).delete(synchronize_session=False)
+        s.commit()
+        # update new rows of this ticker - db.mapping and save to db db.write
+        bulk_save(s, map_holding(df_holding))
     # if quantity is zero
     else:
         # delete ticker in holding table - remove.py
-        delete_by_fieldValue_Engine('holding','ticker',ticker,engine)
+        s.query(Holding).filter(Holding.symbol == ticker).delete(synchronize_session=False)
+        s.commit()
