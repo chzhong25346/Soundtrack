@@ -18,32 +18,28 @@ def simulator(s):
     date = dt.datetime.today().strftime("%Y-%m-%d")
     # read report
     df_report = pd.read_sql(s.query(Report).filter(Report.date == date).statement, s.bind, index_col='symbol')
-    # if buy list is not empty
-    if buy_list(df_report):
-        # buy list
-        all_in,half_in = buy_list(df_report)
-        # BUY Order
-        if all_in:
-            quote_list = get_quote(all_in,s)
-            # execute buy order - trade.py
-            execute_order(quote_list,10000,"buy",s)
-        if half_in:
-            quote_list = get_quote(half_in,s)
-            # execute buy order $5000 - trade.py
-            execute_order(quote_list,5000,"buy",s)
-    # if sell_list is not empty
-    if sell_list(df_report):
-        # sell list
-        all_out,half_out = sell_list(df_report)
-        # SELL Order
-        if all_out:
-            quote_list = get_quote(all_out,s)
-            # execute sell order - all holding quantity - trade.py
-            execute_order(quote_list,10000,"sell",s)
-        if half_out:
-            quote_list = get_quote(half_out,s)
-            # execute sell order - half holding quntity - trade.py
-            execute_order(quote_list,5000,"sell",s)
+    # BUY list
+    all_in,half_in = buy_list(df_report)
+    # SELL list
+    all_out,half_out = sell_list(df_report)
+    # BUY Order
+    if all_in:
+        quote_list = get_quote(all_in,s)
+        # execute buy order - trade.py
+        execute_order(quote_list,10000,"buy",s)
+    if half_in:
+        quote_list = get_quote(half_in,s)
+        # execute buy order $5000 - trade.py
+        execute_order(quote_list,5000,"buy",s)
+    # SELL Order
+    if all_out:
+        quote_list = get_quote(all_out,s)
+        # execute sell order - all holding quantity - trade.py
+        execute_order(quote_list,10000,"sell",s)
+    if half_out:
+        quote_list = get_quote(half_out,s)
+        # execute sell order - half holding quntity - trade.py
+        execute_order(quote_list,5000,"sell",s)
     # refreshing holding table
     refresh_holding(s)
     # rbreaker(engine_simulation, engine_dailydb)
@@ -53,32 +49,24 @@ def buy_list(df):
     '''
     return lists of tickers based on Buy triggers
     '''
-    try:
-        #  trigger.py
-        all_in = bull_hivolume_uptrend(df)
-        logger.debug('buy all: %s', ','.join(all_in))
-        half_in = bull_oneyrlow_doji_hivolume(df)
-        logger.debug('buy half: %s', ','.join(half_in))
-        return all_in,half_in
-    except:
-        logger.debug('all_in/half_in Empty!')
-        return False
+    #  trigger.py
+    all_in = bull_hivolume_uptrend(df)
+    logger.debug('Buy All: %s', ','.join(all_in))
+    half_in = bull_oneyrlow_doji_hivolume(df)
+    logger.debug('Buy Half: %s', ','.join(half_in))
+    return all_in,half_in
 
 
 def sell_list(df):
     '''
     return lists of tickers based on Sell triggers
     '''
-    try:
-        # trigger.py
-        all_out = bear_hivolume_downtrend(df)
-        logger.debug('sell all: %s', ','.join(all_out))
-        half_out = bear_oneyrhigh_doji_downtrend(df)
-        logger.debug('sell half: %s', ','.join(half_out) )
-        return all_out,half_out
-    except:
-        logger.debug('all_out/half_out Empty!')
-        return False
+    # trigger.py
+    all_out = bear_hivolume_downtrend(df)
+    logger.debug('Sell All: %s', ','.join(all_out))
+    half_out = bear_oneyrhigh_doji_downtrend(df)
+    logger.debug('Sell Half: %s', ','.join(half_out) )
+    return all_out,half_out
 
 
 def refresh_holding(s):
