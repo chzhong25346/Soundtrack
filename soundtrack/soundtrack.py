@@ -18,7 +18,7 @@ logger = logging.getLogger('main')
 def main(argv):
     time_start = time.time()
     try:
-        opts, args = getopt.getopt(argv,"u:rs",["update=", "report=", "simulate="])
+        opts, args = getopt.getopt(argv,"u:rse",["update=", "report=", "simulate=", "emailing="])
     except getopt.GetoptError:
         print('run.py -u <full|compact>')
         print('run.py -r')
@@ -39,26 +39,30 @@ def main(argv):
                 type = arg
                 today_only = True
                 update(type, today_only)  # Compact update for today
+            elif(arg == 'fix'):
+                type = arg
+                today_only = True
+                fix_update(type, today_only)  # Compact update for today
         elif opt in ("-r", "--report"):  # Report
             analyze()
         elif opt in ("-s", "--simulate"): # Simulate
             simulate()
+        elif opt in ("-e", "--emailing"): # Emailing
+            emailing()
     elapsed = math.ceil((time.time() - time_start)/60)
     logger.info('Program took ' + str(elapsed) + ' minutes to run')
 
 
 def update(type, today_only):
-    Config.DB_NAME='sp500'
+    Config.DB_NAME='nasdaq100'
     db = Db(Config)
     s = db.session()
     e = db.get_engine()
     # Create table based on Models
     db.create_all()
-
     if has_index(s) == None:
         # Fetch/Mapping/Write Index
         bulk_save(s, map_index())
-
     tickerL = read_ticker(s)
     for ticker in tickerL:
         # if read_exist(s, ticker) == False:
@@ -71,8 +75,30 @@ def update(type, today_only):
     s.close()
 
 
+def fix_update(type, today_only):
+    Config.DB_NAME='nasdaq100'
+    db = Db(Config)
+    s = db.session()
+    e = db.get_engine()
+    # Create table based on Models
+    db.create_all()
+    if has_index(s) == None:
+        # Fetch/Mapping/Write Index
+        bulk_save(s, map_index())
+    tickerL = read_ticker(s)
+    for ticker in tickerL:
+        if read_exist(s, ticker) == False:
+            try:
+                logger.info('Processing: %s' % (ticker))
+                model_list = map_quote(Config,ticker,type,today_only)
+                bulk_save(s, model_list)
+            except:
+                logger.error('Unable to process: %s' % (ticker))
+    s.close()
+
+
 def analyze():
-    Config.DB_NAME='sp500'
+    Config.DB_NAME='nasdaq100'
     db = Db(Config)
     s = db.session()
     e = db.get_engine()
@@ -85,10 +111,18 @@ def analyze():
 
 
 def simulate():
-    Config.DB_NAME='sp500'
+    Config.DB_NAME='nasdaq100'
     db = Db(Config)
     s = db.session()
     e = db.get_engine()
     # Create table based on Models
     db.create_all()
     simulator(s)
+    s.close()
+
+
+def emailing():
+    Config.DB_NAME='nasdaq100'
+    db = Db(Config)
+    s = db.session()
+    e = db.get_engine()

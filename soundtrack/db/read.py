@@ -1,5 +1,6 @@
 from ..models import Index, Quote
 from sqlalchemy import exists
+import datetime as dt
 import logging
 logger = logging.getLogger('main.read')
 
@@ -9,7 +10,8 @@ def read_ticker(s):
 
 
 def read_exist(s, ticker):
-    ret = s.query(exists().where(Quote.symbol==ticker)).scalar()
+    date = dt.datetime.today().strftime("%Y-%m-%d")
+    ret = s.query(exists().where(Quote.symbol==ticker).where(Quote.date==date)).scalar()
     return ret
 
 

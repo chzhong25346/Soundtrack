@@ -7,8 +7,8 @@ class Index(db.Model):
     __tablename__ = 'index'
     symbol = db.Column(db.String(6), unique=True, nullable=False, primary_key=True)
     company = db.Column(db.String(60),nullable=False)
-    sector = db.Column(db.String(80),nullable=False)
-    industry = db.Column(db.String(60),nullable=False)
+    # sector = db.Column(db.String(80),nullable=False)
+    # industry = db.Column(db.String(60),nullable=False)
     quote = db.relationship('Quote', backref='quote', lazy=True)
     report = db.relationship('Report', backref='report', lazy=True)
 

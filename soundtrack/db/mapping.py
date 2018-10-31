@@ -13,8 +13,8 @@ def map_index():
     model_instnaces = [Index(
         symbol = record['symbol'],
         company = record['company'],
-        sector = record['sector'],
-        industry = record['industry']
+        # sector = record['sector'],
+        # industry = record['industry']
     ) for record in df_records]
 
     return model_instnaces
