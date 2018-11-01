@@ -7,8 +7,8 @@ import logging
 logger = logging.getLogger('main.mapping')
 
 
-def map_index():
-    df = fetch_index()
+def map_index(index_name):
+    df = fetch_index(index_name)
     df_records = df.to_dict('records')
     model_instnaces = [Index(
         symbol = record['symbol'],
@@ -20,8 +20,8 @@ def map_index():
     return model_instnaces
 
 
-def map_quote(config,ticker,size,today_only):
-    df = get_daily_adjusted(config,ticker,size,today_only)
+def map_quote(config,ticker,size,today_only,index_name):
+    df = get_daily_adjusted(config,ticker,size,today_only,index_name)
     df_records = df.to_dict('records')
     model_instnaces = [Quote(
         id = gen_id(ticker+str(record['date'])),
