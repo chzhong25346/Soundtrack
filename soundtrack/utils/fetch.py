@@ -10,16 +10,22 @@ import logging
 logger = logging.getLogger('main.fetch')
 
 
-def fetch_index():
+def fetch_index(index_name):
     path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(path, 'nasdaq100list.csv')
+    filename = os.path.join(path, index_name+'.csv')
     try:
-        data = pd.read_csv(filename)
-        data.columns = ['symbol', 'company', 'lastsale', 'netchange', 'netchange', 'share_volume', 'Nasdaq100_points','Unnamed: 7']
-        data = data.drop(['lastsale', 'netchange', 'netchange', 'share_volume', 'Nasdaq100_points', 'Unnamed: 7'], axis=1)
-        data.index.name = 'symbol'
-        data = normalize_Todash(data)
-        return data
+        if (index_name == 'nasdaq100'):
+            data = pd.read_csv(filename)
+            data.columns = ['symbol', 'company', 'lastsale', 'netchange', 'netchange', 'share_volume', 'Nasdaq100_points','Unnamed: 7']
+            data = data.drop(['company', 'lastsale', 'netchange', 'netchange', 'share_volume', 'Nasdaq100_points', 'Unnamed: 7'], axis=1)
+            data.index.name = 'symbol'
+            data = normalize_Todash(data)
+            return data
+        elif (index_name == 'tsxci'):
+            data = pd.read_csv(filename, na_filter = False)
+            data.columns = ['symbol', 'company']
+            # data = normalize_Todash(data)
+            return data
     except Exception as e:
         logger.error('Unable to fetch index! {%s}' % e)
 
@@ -40,12 +46,15 @@ def fetch_index():
 #         logger.error('Unable to fetch index! {%s}' % e)
 
 
-def get_daily_adjusted(config,ticker,size,today_only):
+def get_daily_adjusted(config,ticker,size,today_only,index_name):
     key = config.AV_KEY
     ts = TimeSeries(key)
     try:
         time.sleep(15)
-        data, meta_data = ts.get_daily_adjusted(ticker,outputsize=size)
+        if(index_name == 'tsxci'):
+            data, meta_data = ts.get_daily_adjusted(ticker+'.TO',outputsize=size)
+        else:
+            data, meta_data = ts.get_daily_adjusted(ticker,outputsize=size)
         df = pd.DataFrame.from_dict(data).T
         df = df.drop(["7. dividend amount","8. split coefficient"], axis=1)
         df.columns = ["open","high","low","close","adjusted close","volume"]

@@ -8,5 +8,6 @@ class Config():
     DB_HOST = os.environ.get('DB_HOST')
     DB_NAME = None
     AV_KEY = os.environ.get('AV_KEY')
-    EMAIL_USER = os.environ.get('intefalla@gmail.com')
-    EMAIL_PASS = os.environ.get('1988628a')
+    EMAIL_USER = os.environ.get('EMAIL_USER')
+    EMAIL_PASS = os.environ.get('EMAIL_PASS')
+    EMAIL_TO = os.environ.get('EMAIL_TO')
