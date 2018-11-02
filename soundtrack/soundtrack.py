@@ -48,7 +48,7 @@ def main(argv):
             elif(arg == 'fix'):
                 index_name = argv[2]
                 type = 'compact'
-                today_only = False
+                today_only = True
                 update(type, today_only, index_name, fix=True)  # Compact update for today
         elif opt in ("-r", "--report"):  # Report
             index_name = argv[1]

@@ -13,6 +13,7 @@ def read_ticker(s):
 def read_exist(s, ticker):
     date = dt.datetime.today().strftime("%Y-%m-%d")
     ret = s.query(exists().where(Quote.symbol==ticker).where(Quote.date==date)).scalar()
+    print(ret)
     return ret
 
 
