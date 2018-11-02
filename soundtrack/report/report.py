@@ -19,7 +19,6 @@ def report(s):
     report_df = df_empty(columns, dtypes)
 
     for symbol in tickerL:
-        print(symbol)
         # read daily db return df in random order
         df = pd.read_sql(s.query(Quote).filter(Quote.symbol == symbol).statement, s.bind, index_col='date')
         # sort by old to new

@@ -76,11 +76,11 @@ def update(type, today_only, index_name, fix=False):
     for ticker in tickerL:
         if (fix == True and read_exist(s, ticker) == False):
             try:
-                logger.info('Processing: %s' % (ticker))
+                logger.info('Fixing: %s' % (ticker))
                 model_list = map_quote(Config,ticker,type,today_only,index_name)
                 bulk_save(s, model_list)
             except:
-                logger.error('Unable to process: %s' % (ticker))
+                logger.error('Unable to fix: %s' % (ticker))
         elif(fix == False):
             try:
                 logger.info('Processing: %s' % (ticker))
@@ -92,7 +92,7 @@ def update(type, today_only, index_name, fix=False):
 
 
 def analyze(index_name):
-    Config.DB_NAME='index_name'
+    Config.DB_NAME=index_name
     db = Db(Config)
     s = db.session()
     e = db.get_engine()
@@ -105,7 +105,7 @@ def analyze(index_name):
 
 
 def simulate(index_name):
-    Config.DB_NAME='index_name'
+    Config.DB_NAME=index_name
     db = Db(Config)
     s = db.session()
     e = db.get_engine()
