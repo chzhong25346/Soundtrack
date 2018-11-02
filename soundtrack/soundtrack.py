@@ -47,8 +47,8 @@ def main(argv):
                 update(type, today_only, index_name)  # Compact update for today
             elif(arg == 'fix'):
                 index_name = argv[2]
-                type = arg
-                today_only = True
+                type = 'compact'
+                today_only = False
                 update(type, today_only, index_name, fix=True)  # Compact update for today
         elif opt in ("-r", "--report"):  # Report
             index_name = argv[1]
@@ -81,7 +81,7 @@ def update(type, today_only, index_name, fix=False):
                 bulk_save(s, model_list)
             except:
                 logger.error('Unable to process: %s' % (ticker))
-        else:
+        elif(fix == False):
             try:
                 logger.info('Processing: %s' % (ticker))
                 model_list = map_quote(Config,ticker,type,today_only,index_name)
