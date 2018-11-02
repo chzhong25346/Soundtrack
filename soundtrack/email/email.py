@@ -10,7 +10,7 @@ from dateutil import parser
 from ..models import Holding, Report
 logger = logging.getLogger('main.email')
 
-def sendMail(object, session):
+def sendMail(object, s_nasdaq, s_tsxci):
     # today's datetime
     day = dt.datetime.today().strftime("%Y-%m-%d")
     dow = parser.parse(day).strftime("%a")
@@ -34,7 +34,7 @@ def sendMail(object, session):
     msg['From'] = user
     msg['To'] = rcpt
 
-    html = generate_html(session)
+    html = generate_html(s_nasdaq, s_tsxci)
     attachment = MIMEText(html, 'html')
 
     # Attach parts into message container.
@@ -48,40 +48,65 @@ def sendMail(object, session):
     s.quit()
 
 
-def generate_html(session):
+def generate_html(s_nasdaq, s_tsxci):
     # Nasdaq100
-    tsxci_holding = pd.read_sql(session.query(Holding).statement, session.bind, index_col='symbol')
-    uptrend = [Report.symbol for Report in session.query(Report).filter(Report.uptrend == 1)]
-    downtrend = [Report.symbol for Report in session.query(Report).filter(Report.downtrend == 1)]
-    high_volume = [Report.symbol for Report in session.query(Report).filter(Report.high_volume == 1)]
+    nasdaq_holding = pd.read_sql(s_nasdaq.query(Holding).statement, s_nasdaq.bind, index_col='symbol')
+    nasdaq_uptrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.uptrend == 1)]
+    nasdaq_downtrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.downtrend == 1)]
+    nasdaq_high_volume = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.high_volume == 1)]
+    # TSXCI
+    tsxci_holding = pd.read_sql(s_tsxci.query(Holding).statement, s_tsxci.bind, index_col='symbol')
+    tsxci_uptrend = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.uptrend == 1)]
+    tsxci_downtrend = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.downtrend == 1)]
+    tsxci_high_volume = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.high_volume == 1)]
 
     html = """\
     <html>
     <head></head>
     <body>
         <h3>NASDAQ 100</h3>
+        {nasdaq_holding}<br>
+        <table border="1" class="dataframe">
+          <tr>
+            <th>Uptrend:</th>
+            <td>{nasdaq_uptrend}</td>
+          </tr>
+          <tr>
+            <th>Downtrend:</th>
+            <td>{nasdaq_downtrend}</td>
+          </tr>
+          <tr>
+            <th>High Volume:</th>
+            <td>{nasdaq_high_volume}</td>
+          </tr>
+        </table>
+        <h3>TSXCI</h3>
         {tsxci_holding}<br>
         <table border="1" class="dataframe">
           <tr>
             <th>Uptrend:</th>
-            <td>{uptrend}</td>
+            <td>{tsxci_uptrend}</td>
           </tr>
           <tr>
             <th>Downtrend:</th>
-            <td>{downtrend}</td>
+            <td>{tsxci_downtrend}</td>
           </tr>
           <tr>
             <th>High Volume:</th>
-            <td>{high_volume}</td>
+            <td>{tsxci_high_volume}</td>
           </tr>
         </table>
     </body>
     </html>
     """
 
-    html = html.format(tsxci_holding=tsxci_holding.to_html(),
-                      uptrend=",".join(uptrend),
-                      downtrend=",".join(downtrend),
-                      high_volume=",".join(high_volume))
+    html = html.format(nasdaq_holding=nasdaq_holding.to_html(),
+                      nasdaq_uptrend=",".join(nasdaq_uptrend),
+                      nasdaq_downtrend=",".join(nasdaq_downtrend),
+                      nasdaq_high_volume=",".join(nasdaq_high_volume),
+                      tsxci_holding=tsxci_holding.to_html(),
+                      tsxci_uptrend=",".join(tsxci_uptrend),
+                      tsxci_downtrend=",".join(tsxci_downtrend),
+                      tsxci_high_volume=",".join(tsxci_high_volume))
 
     return html

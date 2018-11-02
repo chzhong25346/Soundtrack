@@ -117,7 +117,11 @@ def simulate(index_name):
 
 def emailing():
     Config.DB_NAME='nasdaq100'
-    db = Db(Config)
-    s = db.session()
+    db_nasdaq = Db(Config)
+    s_nasdaq = db_nasdaq.session()
 
-    sendMail(Config, s)
+    Config.DB_NAME='tsxci'
+    db_tsxci = Db(Config)
+    s_tsxci = db_tsxci.session()
+
+    sendMail(Config, s_nasdaq, s_tsxci)
