@@ -12,9 +12,9 @@ def trend_potential(ticker, df):
     ema5 = ema(df,5)
     today = df.iloc()[-1]
     range = (ema5/ema21)-1
-    if (-0.005<=range<=0 and today['close']>=ema5):
+    if (-0.015<=range<=0 and today['close']>=ema5):
         return {'symbol':ticker,'uptrend':True}
-    elif (0.005>=range>=0 and today['close']<=ema5):
+    elif (0.015>=range>=0 and today['close']<=ema5):
         return {'symbol':ticker,'downtrend':True}
 
 
