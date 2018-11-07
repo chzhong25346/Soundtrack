@@ -3,7 +3,6 @@ logger = logging.getLogger('main.support')
 
 
 def support(ticker, df):
-    print(ticker)
     today = df.iloc()[-1]
     supp = support_price(df)
     if(supp is not None):

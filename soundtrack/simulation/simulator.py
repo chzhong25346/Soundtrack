@@ -99,8 +99,11 @@ def refresh_holding(s):
         change_percent = round((mkt_value / df_ticker.book_value.sum()-1)*100,2)
         # update table
         s.query(Holding).filter(Holding.symbol == ticker).update(
-                                                {"mkt_price": mkt_price,
+                                                {'mkt_price': mkt_price,
                                                 'mkt_value': mkt_value,
                                                 'change_dollar': change_dollar,
                                                 'change_percent': change_percent})
+        s.commit()
+
+
         logger.debug('Refreshing holding: %s at $%s/share, change: $%s(%s percent) ' % (ticker,mkt_price,change_dollar,change_percent))

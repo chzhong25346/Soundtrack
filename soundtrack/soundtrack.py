@@ -63,6 +63,7 @@ def main(argv):
 
 
 def update(type, today_only, index_name, fix=False):
+    logger.info('Run Task:[%s UPDATE]' % (type))
     Config.DB_NAME=index_name
     db = Db(Config)
     s = db.session()
@@ -92,6 +93,7 @@ def update(type, today_only, index_name, fix=False):
 
 
 def analyze(index_name):
+    logger.info('Run Task: [Reporting]')
     Config.DB_NAME=index_name
     db = Db(Config)
     s = db.session()
@@ -105,6 +107,7 @@ def analyze(index_name):
 
 
 def simulate(index_name):
+    logger.info('Run Task: [Simulation]')
     Config.DB_NAME=index_name
     db = Db(Config)
     s = db.session()
@@ -116,6 +119,7 @@ def simulate(index_name):
 
 
 def emailing():
+    logger.info('Run Task: [Emailing]')
     Config.DB_NAME='nasdaq100'
     db_nasdaq = Db(Config)
     s_nasdaq = db_nasdaq.session()
@@ -123,5 +127,6 @@ def emailing():
     Config.DB_NAME='tsxci'
     db_tsxci = Db(Config)
     s_tsxci = db_tsxci.session()
-
+    s_nasdaq.close()
+    s_tsxci.close()
     sendMail(Config, s_nasdaq, s_tsxci)
