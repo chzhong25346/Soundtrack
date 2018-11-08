@@ -22,7 +22,8 @@ def sendMail(object, s_nasdaq, s_tsxci):
     # now login as my gmail user
     user = object.EMAIL_USER
     pwd = object.EMAIL_PASS
-    rcpt = object.EMAIL_TO
+    # rcpt = object.EMAIL_TO
+    rcpt = [i for i in object.EMAIL_TO.split(',')]
     try:
         s.login(user,pwd)
     except Exception as e:
@@ -32,7 +33,7 @@ def sendMail(object, s_nasdaq, s_tsxci):
     msg = MIMEMultipart('alternative')
     msg['Subject'] = today
     msg['From'] = user
-    msg['To'] = rcpt
+    msg['To'] = ", ".join(rcpt)
 
     html = generate_html(s_nasdaq, s_tsxci)
     attachment = MIMEText(html, 'html')
