@@ -8,7 +8,6 @@ def support(ticker, df):
     if(supp is not None):
         range = (today.close/supp)-1
         if (-0.02<=range<=0.02):
-            # print( {'symbol':ticker,'support':True})
             return {'symbol':ticker,'support':True}
 
 

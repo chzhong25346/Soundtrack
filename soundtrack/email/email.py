@@ -4,6 +4,7 @@ import yaml,os
 import sys
 import pandas as pd
 import datetime as dt
+import re
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from dateutil import parser
@@ -42,6 +43,7 @@ def sendMail(object, s_nasdaq, s_tsxci):
     # According to RFC 2046, the last part of a multipart message, in this case
     # the HTML message, is best and preferred.
     msg.attach(attachment)
+    print(read_log())
 
     # send the email
     s.sendmail(user, rcpt, msg.as_string())

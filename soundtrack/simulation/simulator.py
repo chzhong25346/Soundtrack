@@ -10,6 +10,7 @@ from .quote import get_quote
 from .trade import execute_order
 # from .rbreaker import rbreaker
 from ..models import Index, Quote, Report, Holding, Transaction
+from ..report.support import support_price, ema
 logger = logging.getLogger('main.simulator')
 
 
@@ -97,12 +98,30 @@ def refresh_holding(s):
         change_dollar = round(mkt_value - df_ticker.book_value.sum(),2)
         # change in dollar of the security on holding, sum() makes it in int
         change_percent = round((mkt_value / df_ticker.book_value.sum()-1)*100,2)
+        # if change percentage lower than 2%
+        if (change_percent<=-2):
+            note = 'Stop Loss'
+        # else to use 'Support price' - report.support.py
+        else:
+            # read daily db return df in random order
+            df = pd.read_sql(s.query(Quote).filter(Quote.symbol == ticker).statement, s.bind, index_col='date')
+            # sort by old to new
+            df.sort_index(inplace=True)
+            # drop rows have 0
+            df = df[(df != 0).all(1)]
+            price = support_price(df)
+            if(price != None):
+                note = round(price,2)
+            else:
+                note = None
+
         # update table
         s.query(Holding).filter(Holding.symbol == ticker).update(
                                                 {'mkt_price': mkt_price,
                                                 'mkt_value': mkt_value,
                                                 'change_dollar': change_dollar,
-                                                'change_percent': change_percent})
+                                                'change_percent': change_percent,
+                                                'note': note})
         s.commit()
 
 

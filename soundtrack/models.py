@@ -51,6 +51,7 @@ class Holding(db.Model):
     mkt_price = db.Column(db.Float, nullable=True)
     mkt_value = db.Column(db.Float, nullable=True)
     quantity = db.Column(db.BIGINT, nullable=True)
+    note = db.Column(db.String(20), nullable=True)
 
 
 class Transaction(db.Model):

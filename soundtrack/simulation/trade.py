@@ -110,7 +110,7 @@ def build_holding(dict,s):
         change_dollar = mkt_value - book_value
         change_percent = (mkt_value/book_value-1)*100
         # construct holding dictionary
-        dict_holding = {'symbol':ticker,'quantity':qty,'avg_cost':avg_cost,'mkt_price':mkt_price,'book_value':book_value,'mkt_value':mkt_value,'change_dollar':round(change_dollar,2),'change_percent':round(change_percent,2)}
+        dict_holding = {'symbol':ticker,'quantity':qty,'avg_cost':avg_cost,'mkt_price':mkt_price,'book_value':book_value,'mkt_value':mkt_value,'change_dollar':round(change_dollar,2),'change_percent':round(change_percent,2),'note':None}
         # constract holding dataframe from the dictionary
         df_holding = pd.DataFrame.from_records([dict_holding])
         # delete ticker in holding table

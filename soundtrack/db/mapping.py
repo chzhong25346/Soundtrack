@@ -87,6 +87,7 @@ def map_holding(df):
         change_percent  = record['change_percent'],
         mkt_price  = record['mkt_price'],
         mkt_value  = record['mkt_value'],
+        note  = record['note'],
     ) for record in df_records]
     logger.info('Mapping completed.')
 
