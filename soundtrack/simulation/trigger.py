@@ -46,7 +46,7 @@ def bear_oneyrhigh_doji_downtrend(df):
     return tickers
     '''
     try:
-        return df[(df['yr_high']>0) & (df['pattern'].str.contains("doji")) & (df['downtrend'] > 0) ].index.tolist()
+        return df[(df['yr_high']>0) & (df['pattern'].str.contains("doji")) ].index.tolist()
     except Exception as e:
         logger.debug('bear_oneyrhigh_doji_downtrend: Missing Field in Report for Calculation!')
         pass
