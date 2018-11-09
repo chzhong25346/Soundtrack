@@ -8,7 +8,6 @@ def bull_hivolume_uptrend(df):
     return tickers
     '''
     try:
-        print(df[((df['high_volume']>0) | (df['support']>0)) & (df['uptrend']>0)])
         return df[((df['high_volume']>0) | (df['support']>0)) & (df['uptrend']>0)].index.tolist()
     except Exception as e:
         logger.debug('bull_hivolume_uptrend: Missing Field in Report for Calculation!')
