@@ -43,7 +43,6 @@ def sendMail(object, s_nasdaq, s_tsxci):
     # According to RFC 2046, the last part of a multipart message, in this case
     # the HTML message, is best and preferred.
     msg.attach(attachment)
-    print(read_log())
 
     # send the email
     s.sendmail(user, rcpt, msg.as_string())
@@ -54,16 +53,16 @@ def sendMail(object, s_nasdaq, s_tsxci):
 def generate_html(s_nasdaq, s_tsxci):
     # Nasdaq100
     nasdaq_holding = pd.read_sql(s_nasdaq.query(Holding).statement, s_nasdaq.bind, index_col='symbol')
-    nasdaq_uptrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.uptrend == 1)]
-    nasdaq_downtrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.downtrend == 1)]
+    # nasdaq_uptrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.uptrend == 1)]
+    # nasdaq_downtrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.downtrend == 1)]
     # nasdaq_high_volume = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.high_volume == 1)]
-    nasdaq_support = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.support == 1)]
+    # nasdaq_support = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.support == 1)]
     # TSXCI
     tsxci_holding = pd.read_sql(s_tsxci.query(Holding).statement, s_tsxci.bind, index_col='symbol')
-    tsxci_uptrend = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.uptrend == 1)]
-    tsxci_downtrend = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.downtrend == 1)]
+    # tsxci_uptrend = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.uptrend == 1)]
+    # tsxci_downtrend = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.downtrend == 1)]
     # tsxci_high_volume = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.high_volume == 1)]
-    tsxci_support = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.support == 1)]
+    # tsxci_support = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.support == 1)]
 
     html = """\
     <html>
@@ -71,47 +70,33 @@ def generate_html(s_nasdaq, s_tsxci):
     <body>
         <h3>NASDAQ 100</h3>
         {nasdaq_holding}<br>
-        <table border="1" class="dataframe">
-          <tr>
-            <th>Uptrend:</th>
-            <td>{nasdaq_uptrend}</td>
-          </tr>
-          <tr>
-            <th>Downtrend:</th>
-            <td>{nasdaq_downtrend}</td>
-          </tr>
-          <tr>
-            <th>Support Line:</th>
-            <td>{nasdaq_support}</td>
-          </tr>
-        </table>
+
         <h3>TSXCI</h3>
         {tsxci_holding}<br>
-        <table border="1" class="dataframe">
-          <tr>
-            <th>Uptrend:</th>
-            <td>{tsxci_uptrend}</td>
-          </tr>
-          <tr>
-            <th>Downtrend:</th>
-            <td>{tsxci_downtrend}</td>
-          </tr>
-          <tr>
-            <th>Support Line:</th>
-            <td>{tsxci_support}</td>
-          </tr>
-        </table>
+
+        <p>{trade_list}</p>
+
     </body>
     </html>
     """
 
     html = html.format(nasdaq_holding=nasdaq_holding.to_html(),
-                      nasdaq_uptrend=",".join(nasdaq_uptrend),
-                      nasdaq_downtrend=",".join(nasdaq_downtrend),
-                      nasdaq_support=",".join(nasdaq_support),
                       tsxci_holding=tsxci_holding.to_html(),
-                      tsxci_uptrend=",".join(tsxci_uptrend),
-                      tsxci_downtrend=",".join(tsxci_downtrend),
-                      tsxci_support=",".join(tsxci_support))
+                      trade_list = read_log()
+                      )
+
+    return html
+
+
+def read_log():
+    s = 'DEBUG - '
+    html =''
+    day = dt.datetime.today().strftime("%Y-%m-%d")
+    fh = open('log.log', 'r')
+    with fh as file:
+        for line in file:
+            if((day in line) and ('Half' in line) or ('All' in line) ):
+                html += "<li>" + line[line.index(s) + len(s):] + "</li>"
+    fh.close()
 
     return html
