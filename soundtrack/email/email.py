@@ -11,7 +11,7 @@ from dateutil import parser
 from ..models import Holding, Report
 logger = logging.getLogger('main.email')
 
-def sendMail(object, s_nasdaq, s_tsxci):
+def sendMail(object, s_nasdaq, s_tsxci, s_sp100):
     # today's datetime
     day = dt.datetime.today().strftime("%Y-%m-%d")
     dow = parser.parse(day).strftime("%a")
@@ -36,7 +36,7 @@ def sendMail(object, s_nasdaq, s_tsxci):
     msg['From'] = user
     msg['To'] = ", ".join(rcpt)
 
-    html = generate_html(s_nasdaq, s_tsxci)
+    html = generate_html(s_nasdaq, s_tsxci, s_sp100)
     attachment = MIMEText(html, 'html')
 
     # Attach parts into message container.
@@ -50,7 +50,7 @@ def sendMail(object, s_nasdaq, s_tsxci):
     s.quit()
 
 
-def generate_html(s_nasdaq, s_tsxci):
+def generate_html(s_nasdaq, s_tsxci, s_sp100):
     # Nasdaq100
     nasdaq_holding = pd.read_sql(s_nasdaq.query(Holding).statement, s_nasdaq.bind, index_col='symbol')
     # nasdaq_uptrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.uptrend == 1)]
@@ -63,6 +63,7 @@ def generate_html(s_nasdaq, s_tsxci):
     # tsxci_downtrend = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.downtrend == 1)]
     # tsxci_high_volume = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.high_volume == 1)]
     # tsxci_support = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.support == 1)]
+    sp100_holding = pd.read_sql(s_sp100.query(Holding).statement, s_sp100.bind, index_col='symbol')
 
     html = """\
     <html>
@@ -74,6 +75,9 @@ def generate_html(s_nasdaq, s_tsxci):
         <h3>TSXCI</h3>
         {tsxci_holding}<br>
 
+        <h3>SP100</h3>
+        {sp100_holding}<br>
+
         <p>{trade_list}</p>
 
     </body>
@@ -82,6 +86,7 @@ def generate_html(s_nasdaq, s_tsxci):
 
     html = html.format(nasdaq_holding=nasdaq_holding.to_html(),
                       tsxci_holding=tsxci_holding.to_html(),
+                      sp100_holding=sp100_holding.to_html(),
                       trade_list = read_log()
                       )
 
@@ -95,7 +100,7 @@ def read_log():
     fh = open('log.log', 'r')
     with fh as file:
         for line in file:
-            if((day in line) and ('Half' in line) or ('All' in line) ):
+            if((day in line) and (('Half' in line) or ('All' in line)) ):
                 html += "<li>" + line[line.index(s) + len(s):] + "</li>"
     fh.close()
 

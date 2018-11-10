@@ -21,18 +21,18 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"u:rse",["update=", "report=", "simulate=", "emailing="])
     except getopt.GetoptError:
-        print('run.py -u <full|compact|fix> <nasdaq100|tsxci>')
-        print('run.py -r <nasdaq100|tsxci>')
-        print('run.py -s <nasdaq100|tsxci>')
+        print('run.py -u <full|compact|fix> <nasdaq100|tsxci|sp100>')
+        print('run.py -r <nasdaq100|tsxci|sp100>')
+        print('run.py -s <nasdaq100|tsxci>|sp100')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('run.py -u <full|compact|fix>  <nasdaq100|tsxci>')
-            print('run.py -r <nasdaq100|tsxci>')
-            print('run.py -s <nasdaq100|tsxci>')
+            print('run.py -u <full|compact|fix>  <nasdaq100|tsxci|sp100>')
+            print('run.py -r <nasdaq100|tsxci|sp100>')
+            print('run.py -s <nasdaq100|tsxci|sp100>')
             sys.exit()
         elif (opt == '-u' and len(argv) != 3):
-            print('run.py -u <full|compact|fix>  <nasdaq100|tsxci>')
+            print('run.py -u <full|compact|fix>  <nasdaq100|tsxci|sp100>')
             sys.exit()
         elif opt in ("-u", "--update"):
             if(arg == 'full'):
@@ -63,7 +63,7 @@ def main(argv):
 
 
 def update(type, today_only, index_name, fix=False):
-    logger.info('Run Task:[%s UPDATE]' % (type))
+    logger.info('Run Task:[%s %s UPDATE]' % (index_name, type))
     Config.DB_NAME=index_name
     db = Db(Config)
     s = db.session()
@@ -127,6 +127,12 @@ def emailing():
     Config.DB_NAME='tsxci'
     db_tsxci = Db(Config)
     s_tsxci = db_tsxci.session()
+
+    Config.DB_NAME='sp100'
+    db_sp100 = Db(Config)
+    s_sp100 = db_sp100.session()
+
     s_nasdaq.close()
     s_tsxci.close()
-    sendMail(Config, s_nasdaq, s_tsxci)
+    s_sp100.close()
+    sendMail(Config, s_nasdaq, s_tsxci, s_sp100)
