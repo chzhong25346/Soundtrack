@@ -11,8 +11,11 @@ logger = logging.getLogger('main.optimize')
 def optimize(s):
     path = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(path, '../utils/tsxci_industry.csv')
-    df = pd.read_csv(filename, index_col='symbol', names=['symbol','company', 'sector', 'industry'], na_filter=False)
+    df = pd.read_csv(filename, na_filter = False)
+    df.columns = ['symbol','company', 'sector', 'industry']
+    df.set_index('symbol', inplace=True)
     ind_list = ['Metals & Mining','Exploration & Production','Banks','Integrated Oil & Gas','Application Software','Independent Power Producers','Autos']
+    ind_list = ['Banks']
     type = 'min_sharpe'
 
     for ind in ind_list:

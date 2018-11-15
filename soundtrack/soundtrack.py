@@ -100,14 +100,14 @@ def analyze(index_name):
     Config.DB_NAME=index_name
     db = Db(Config)
     s = db.session()
-    # e = db.get_engine()
-    # # Create table based on Models
-    # db.create_all()
-    # df = report(s)
-    # model_list = map_report(Config,df)
-    # bulk_save(s, model_list)
+    e = db.get_engine()
+    # Create table based on Models
+    db.create_all()
+    df = report(s)
+    model_list = map_report(Config,df)
+    bulk_save(s, model_list)
 
-    # Proceed with Optimization if index=TSXCI
+    Proceed with Optimization if index=TSXCI
     if(index_name == 'tsxci'):
         optimize(s)
 
