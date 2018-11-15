@@ -13,7 +13,7 @@ def unusual_volume(ticker,df):
     av90 = average_volume(df,90)
     av90 = av90.loc[av90.index.max()]
     volume = df['volume'].loc[df.index.max()]
-    if ((volume/av90)-1 >= 1.35):
+    if ((volume/av90)-1 >= 1):
         return {'symbol':ticker,'high_volume':True}
     elif ((volume/av90)-1 <-0.75):
         return {'symbol':ticker,'low_volume':True}

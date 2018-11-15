@@ -65,6 +65,8 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
     # tsxci_support = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.support == 1)]
     sp100_holding = pd.read_sql(s_sp100.query(Holding).statement, s_sp100.bind, index_col='symbol')
 
+    buy,sell,portfolio = read_log()
+
     html = """\
     <html>
     <head></head>
@@ -78,7 +80,14 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
         <h3>SP100</h3>
         {sp100_holding}<br>
 
-        <p>{trade_list}</p>
+        <h4> <font color="green">Long </font></h4>
+        <p>{buy}</p>
+
+        <h4> <font color="red">Short </font></h4>
+        <p>{sell}</p>
+
+        <h4> Portfolio </h4>
+        <p>{portfolio}</p>
 
     </body>
     </html>
@@ -87,7 +96,9 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
     html = html.format(nasdaq_holding=nasdaq_holding.to_html(),
                       tsxci_holding=tsxci_holding.to_html(),
                       sp100_holding=sp100_holding.to_html(),
-                      trade_list = read_log()
+                      buy = buy,
+                      sell = sell,
+                      portfolio = portfolio
                       )
 
     return html
@@ -95,13 +106,20 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
 
 def read_log():
     s = 'DEBUG - '
-    html =''
+    s2 = 'INFO - '
+    buy = ''
+    sell = ''
+    portfolio = ''
     day = dt.datetime.today().strftime("%Y-%m-%d")
     fh = open('log.log', 'r')
     with fh as file:
         for line in file:
-            if((day in line) and (('Half' in line) or ('All' in line)) ):
-                html += "<li>" + line[line.index(s) + len(s):] + "</li>"
+            if((day in line) and (('Buy All' in line) or ('Buy Half' in line)) ):
+                buy += "<li>" + line[line.index(s) + len(s):] + "</li>"
+            elif((day in line) and (('Sell All' in line) or ('Sell Half' in line)) ):
+                sell += "<li>" + line[line.index(s) + len(s):] + "</li>"
+            elif((day in line) and (('optimize' in line)) ):
+                portfolio += "<li>" + line[line.index(s2) + len(s2):] + "</li>"
     fh.close()
 
-    return html
+    return buy, sell, portfolio

@@ -18,7 +18,7 @@ def map_index(index_name):
     ) for record in df_records]
 
     return model_instnaces
-
+    
 
 def map_quote(config,ticker,size,today_only,index_name):
     df = get_daily_adjusted(config,ticker,size,today_only,index_name)

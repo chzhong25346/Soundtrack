@@ -34,7 +34,7 @@ def bear_hivolume_downtrend(df):
     return tickers
     '''
     try:
-        return df[(df['downtrend']>0)].index.tolist()
+        return df[(df['downtrend']>0) & (df['high_volume'] > 0)].index.tolist()
     except Exception as e:
         logger.debug('bear_hivolume_downtrend: Missing Field in Report for Calculation!')
         pass

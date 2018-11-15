@@ -5,6 +5,7 @@ from .db.write import bulk_save
 from .db.read import read_ticker, has_index, read_exist
 from .email.email import sendMail
 from .report.report import report
+from .report.optimize import optimize
 from .simulation.simulator import simulator
 import logging
 import logging.config
@@ -23,13 +24,15 @@ def main(argv):
     except getopt.GetoptError:
         print('run.py -u <full|compact|fix> <nasdaq100|tsxci|sp100>')
         print('run.py -r <nasdaq100|tsxci|sp100>')
-        print('run.py -s <nasdaq100|tsxci>|sp100')
+        print('run.py -s <nasdaq100|tsxci|sp100>')
+        print('run.py -e')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
             print('run.py -u <full|compact|fix>  <nasdaq100|tsxci|sp100>')
             print('run.py -r <nasdaq100|tsxci|sp100>')
             print('run.py -s <nasdaq100|tsxci|sp100>')
+            print('run.py -e')
             sys.exit()
         elif (opt == '-u' and len(argv) != 3):
             print('run.py -u <full|compact|fix>  <nasdaq100|tsxci|sp100>')
@@ -97,12 +100,17 @@ def analyze(index_name):
     Config.DB_NAME=index_name
     db = Db(Config)
     s = db.session()
-    e = db.get_engine()
-    # Create table based on Models
-    db.create_all()
-    df = report(s)
-    model_list = map_report(Config,df)
-    bulk_save(s, model_list)
+    # e = db.get_engine()
+    # # Create table based on Models
+    # db.create_all()
+    # df = report(s)
+    # model_list = map_report(Config,df)
+    # bulk_save(s, model_list)
+
+    # Proceed with Optimization if index=TSXCI
+    if(index_name == 'tsxci'):
+        optimize(s)
+
     s.close()
 
 
@@ -123,15 +131,12 @@ def emailing():
     Config.DB_NAME='nasdaq100'
     db_nasdaq = Db(Config)
     s_nasdaq = db_nasdaq.session()
-
     Config.DB_NAME='tsxci'
     db_tsxci = Db(Config)
     s_tsxci = db_tsxci.session()
-
     Config.DB_NAME='sp100'
     db_sp100 = Db(Config)
     s_sp100 = db_sp100.session()
-
     s_nasdaq.close()
     s_tsxci.close()
     s_sp100.close()
