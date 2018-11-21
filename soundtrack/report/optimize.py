@@ -15,7 +15,6 @@ def optimize(s):
     df.columns = ['symbol','company', 'sector', 'industry']
     df.set_index('symbol', inplace=True)
     ind_list = ['Metals & Mining','Exploration & Production','Banks','Integrated Oil & Gas','Application Software','Independent Power Producers','Autos']
-    ind_list = ['Banks']
     type = 'min_sharpe'
 
     for ind in ind_list:

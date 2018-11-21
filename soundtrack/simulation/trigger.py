@@ -20,7 +20,7 @@ def bull_oneyrlow_doji_hivolume(df):
     return tickers
     '''
     try:
-        return df[(df['yr_low']>0) & (df['pattern'].str.contains("doji")) & (df['uptrend'] == 0) & (df['downtrend'] == 0) & (df['high_volume'] > 0) ].index.tolist()
+        return df[(df['yr_low']>0) & (df['pattern'].str.contains("engulfing") | df['pattern'].str.contains("harami")) & (df['high_volume'] > 0) ].index.tolist()
     except Exception as e:
         logger.debug('bull_oneyrlow_doji_hivolume: Missing Field in Report for Calculation!')
         pass
@@ -34,7 +34,7 @@ def bear_hivolume_downtrend(df):
     return tickers
     '''
     try:
-        return df[(df['downtrend']>0) & (df['high_volume'] > 0)].index.tolist()
+        return df[(df['downtrend']>0) & (df['high_volume']>0)].index.tolist()
     except Exception as e:
         logger.debug('bear_hivolume_downtrend: Missing Field in Report for Calculation!')
         pass
