@@ -137,7 +137,7 @@ def emailing():
     Config.DB_NAME='sp100'
     db_sp100 = Db(Config)
     s_sp100 = db_sp100.session()
+    sendMail(Config, s_nasdaq, s_tsxci, s_sp100)
     s_nasdaq.close()
     s_tsxci.close()
     s_sp100.close()
-    sendMail(Config, s_nasdaq, s_tsxci, s_sp100)
