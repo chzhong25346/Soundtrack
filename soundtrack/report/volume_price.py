@@ -13,7 +13,6 @@ def volume_price(ticker, df):
     df['volume_delta'] = round((df.volume/av90)-1,2)
     df = df[df['volume_delta']>=0.9]
     df = df[['ema_delta','volume_delta']]
-    print(ticker)
     try:
         date = df.index[-1].strftime("%Y-%m-%d")
         if (df.ema_delta.count() >= 2) and (today == date):
