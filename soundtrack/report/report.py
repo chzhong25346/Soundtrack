@@ -5,6 +5,7 @@ from .volume import unusual_volume
 from .fiftytwoWeek import fiftytwo_week
 from .pattern import find_pattern
 from .support import support
+from .volume_price import volume_price
 from ..utils.util import groupby_na_to_zero
 from ..db.read import read_ticker
 from ..models import Index, Quote, Report
@@ -36,6 +37,8 @@ def report(s):
         report_df = report_df.append(find_pattern(symbol,df),ignore_index=True)
         # decide if close to support line append to df
         report_df = report_df.append(support(symbol,df),ignore_index=True)
+        # decide if colume price turnning positive append to df
+        report_df = report_df.append(volume_price(symbol,df),ignore_index=True)
     # # grouby using first() and NaN to Zero and Date is a column
     report_df = groupby_na_to_zero(report_df, 'symbol')
     report_df = report_df.reset_index()

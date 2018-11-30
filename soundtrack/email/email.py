@@ -86,8 +86,10 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
         <h4> <font color="red">Short </font></h4>
         <p>{sell}</p>
 
+        <!--
         <h4> Portfolio </h4>
         <p>{portfolio}</p>
+        -->
 
     </body>
     </html>
@@ -118,8 +120,8 @@ def read_log():
                 buy += "<li>" + line[line.index(s) + len(s):] + "</li>"
             elif((day in line) and (('Sell All' in line) or ('Sell Half' in line)) ):
                 sell += "<li>" + line[line.index(s) + len(s):] + "</li>"
-            elif((day in line) and (('optimize' in line)) ):
-                portfolio += "<li>" + line[line.index(s2) + len(s2):] + "</li>"
+            # elif((day in line) and (('optimize' in line)) ):
+            #     portfolio += "<li>" + line[line.index(s2) + len(s2):] + "</li>"
     fh.close()
 
     return buy, sell, portfolio

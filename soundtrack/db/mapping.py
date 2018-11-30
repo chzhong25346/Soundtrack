@@ -18,7 +18,7 @@ def map_index(index_name):
     ) for record in df_records]
 
     return model_instnaces
-    
+
 
 def map_quote(config,ticker,size,today_only,index_name):
     df = get_daily_adjusted(config,ticker,size,today_only,index_name)
@@ -52,7 +52,8 @@ def map_report(config,df):
         high_volume = record['high_volume'],
         low_volume = record['low_volume'],
         pattern = record['pattern'],
-        support = record['support']
+        support = record['support'],
+        volume_price = record['volume_price']
     ) for record in df_records]
     logger.info('Mapping completed.')
 

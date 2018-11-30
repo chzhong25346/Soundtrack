@@ -39,6 +39,7 @@ class Report(db.Model):
     low_volume = db.Column(db.Boolean, nullable=True)
     support = db.Column(db.Boolean, nullable=True)
     pattern = db.Column(db.String(20), nullable=True)
+    volume_price = db.Column(db.Boolean, nullable=True)
 
 
 class Holding(db.Model):

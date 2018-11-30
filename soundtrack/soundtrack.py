@@ -107,9 +107,9 @@ def analyze(index_name):
     model_list = map_report(Config,df)
     bulk_save(s, model_list)
 
-    # Proceed with Optimization if index=TSXCI
-    if(index_name == 'tsxci'):
-        optimize(s)
+    # # Proceed with Optimization if index=TSXCI
+    # if(index_name == 'tsxci'):
+    #     optimize(s)
 
     s.close()
 
