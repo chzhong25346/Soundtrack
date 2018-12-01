@@ -40,8 +40,8 @@ def report(s):
         report_df = report_df.append(support(symbol,df),ignore_index=True)
         # decide if colume price turnning positive append to df
         report_df = report_df.append(volume_price(symbol,df),ignore_index=True)
-    if 'volume_price' not in df.columns:
-        report_df['volume_price'] = np.nan 
+    # if 'volume_price' not in df.columns:
+    #     report_df['volume_price'] = np.nan
     # # grouby using first() and NaN to Zero and Date is a column
     report_df = groupby_na_to_zero(report_df, 'symbol')
     report_df = report_df.reset_index()

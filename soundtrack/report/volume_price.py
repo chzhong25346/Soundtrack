@@ -21,6 +21,8 @@ def volume_price(ticker, df):
             now = df.iloc()[-1]
             if (now.ema_delta > 0) and(previous.ema_delta < 0):
                 return {'symbol':ticker,'volume_price':True}
+            else:
+                return {'symbol':ticker,'volume_price':False}
     except:
         pass
 
