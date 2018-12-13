@@ -65,8 +65,9 @@ def sell_list(df):
     # trigger.py
     all_out = bear_hivolume_downtrend(df)
     logger.debug('Sell All: %s', ','.join(all_out))
-    half_out = bear_oneyrhigh_doji_downtrend(df)
-    logger.debug('Sell Half: %s', ','.join(half_out) )
+    half_out = None
+    # half_out = bear_oneyrhigh_doji_downtrend(df)
+    # logger.debug('Sell Half: %s', ','.join(half_out) )
     return all_out,half_out
 
 
