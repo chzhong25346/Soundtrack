@@ -43,6 +43,7 @@ def bear_hivolume_downtrend(df):
 
 
 def bear_oneyrhigh_doji_downtrend(df):
+    #Retired
     # '''
     # 52week high and has any doji and down trend
     # return tickers
