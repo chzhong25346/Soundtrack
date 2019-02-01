@@ -52,18 +52,18 @@ def sendMail(object, s_nasdaq, s_tsxci, s_sp100):
 
 def generate_html(s_nasdaq, s_tsxci, s_sp100):
     # Nasdaq100
-    nasdaq_holding = pd.read_sql(s_nasdaq.query(Holding).statement, s_nasdaq.bind, index_col='symbol')
+    nasdaq_holding = pd.read_sql(s_nasdaq.query(Holding).statement, s_nasdaq.bind, index_col='symbol').sort_values(by=['change_percent'],ascending=0)
     # nasdaq_uptrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.uptrend == 1)]
     # nasdaq_downtrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.downtrend == 1)]
     # nasdaq_high_volume = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.high_volume == 1)]
     # nasdaq_support = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.support == 1)]
     # TSXCI
-    tsxci_holding = pd.read_sql(s_tsxci.query(Holding).statement, s_tsxci.bind, index_col='symbol')
+    tsxci_holding = pd.read_sql(s_tsxci.query(Holding).statement, s_tsxci.bind, index_col='symbol').sort_values(by=['change_percent'],ascending=0)
     # tsxci_uptrend = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.uptrend == 1)]
     # tsxci_downtrend = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.downtrend == 1)]
     # tsxci_high_volume = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.high_volume == 1)]
     # tsxci_support = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.support == 1)]
-    sp100_holding = pd.read_sql(s_sp100.query(Holding).statement, s_sp100.bind, index_col='symbol')
+    sp100_holding = pd.read_sql(s_sp100.query(Holding).statement, s_sp100.bind, index_col='symbol').sort_values(by=['change_percent'],ascending=0)
 
     buy,sell,portfolio = read_log()
 
