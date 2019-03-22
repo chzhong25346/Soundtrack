@@ -98,22 +98,34 @@ def refresh_holding(s):
         change_dollar = round(mkt_value - df_ticker.book_value.sum(),2)
         # change in dollar of the security on holding, sum() makes it in int
         change_percent = round((mkt_value / df_ticker.book_value.sum()-1)*100,2)
-        # if change percentage lower than 2%
-        if (change_percent<=-2):
-            note = 'Stop Loss'
-        # else to use 'Support price' - report.support.py
+        # Check if rsi & macd happened
+        trxn = pd.read_sql(s.query(Transaction).filter(Transaction.symbol == ticker).statement, s.bind, index_col='date').sort_index()
+        # Latest date of buying order
+        latest_trxn_date = trxn.index[-1]
+        rep = pd.read_sql(s.query(Report).filter(Report.symbol == ticker).statement, s.bind, index_col='date').sort_index()
+        # Ends with latest date and count back 21 days (includes latest day, 20 days)
+        rep = rep[rep.index <= latest_trxn_date].iloc[-21:]
+        # RSI and MACD both happened in these days
+        if ((rep['rsi'] == 'buy').any() and (rep['macd'] == 'buy').any()):
+            note = 'ris_macd'
         else:
-            # read daily db return df in random order
-            df = pd.read_sql(s.query(Quote).filter(Quote.symbol == ticker).statement, s.bind, index_col='date')
-            # sort by old to new
-            df.sort_index(inplace=True)
-            # drop rows have 0
-            df = df[(df != 0).all(1)]
-            price = support_price(df)
-            if(price != None):
-                note = round(price,2)
-            else:
-                note = None
+            note = None
+        # if change percentage lower than 2%
+        # if (change_percent<=-2):
+        #     note = 'Stop Loss'
+        # # else to use 'Support price' - report.support.py
+        # else:
+        #     # read daily db return df in random order
+        #     df = pd.read_sql(s.query(Quote).filter(Quote.symbol == ticker).statement, s.bind, index_col='date')
+        #     # sort by old to new
+        #     df.sort_index(inplace=True)
+        #     # drop rows have 0
+        #     df = df[(df != 0).all(1)]
+        #     price = support_price(df)
+        #     if(price != None):
+        #         note = round(price,2)
+        #     else:
+        #         note = None
 
         # update table
         s.query(Holding).filter(Holding.symbol == ticker).update(
