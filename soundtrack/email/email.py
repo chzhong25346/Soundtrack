@@ -65,7 +65,7 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
     # tsxci_support = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.support == 1)]
     sp100_holding = pd.read_sql(s_sp100.query(Holding).statement, s_sp100.bind, index_col='symbol').sort_values(by=['change_percent'],ascending=0)
 
-    buy,sell,portfolio = read_log()
+    buy,sell = read_log()
 
     html = """\
     <html>
@@ -86,10 +86,6 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
         <h4> <font color="red">Short </font></h4>
         <p>{sell}</p>
 
-        <!--
-        <h4> Portfolio </h4>
-        <p>{portfolio}</p>
-        -->
 
     </body>
     </html>
@@ -99,9 +95,7 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
                       tsxci_holding=tsxci_holding.to_html(),
                       sp100_holding=sp100_holding.to_html(),
                       buy = buy,
-                      sell = sell,
-                      portfolio = portfolio
-                      )
+                      sell = sell)
 
     return html
 
@@ -111,17 +105,17 @@ def read_log():
     s2 = 'INFO - '
     buy = ''
     sell = ''
-    portfolio = ''
+    # portfolio = ''
     day = dt.datetime.today().strftime("%Y-%m-%d")
     fh = open('log.log', 'r')
     with fh as file:
         for line in file:
-            if((day in line) and (('Buy All' in line) or ('Buy Half' in line)) ):
+            if((day in line) and ('Buy All' in line)):
                 buy += "<li>" + line[line.index(s) + len(s):] + "</li>"
-            elif((day in line) and (('Sell All' in line) or ('Sell Half' in line)) ):
+            elif((day in line) and ('Sell All' in line)):
                 sell += "<li>" + line[line.index(s) + len(s):] + "</li>"
             # elif((day in line) and (('optimize' in line)) ):
             #     portfolio += "<li>" + line[line.index(s2) + len(s2):] + "</li>"
     fh.close()
 
-    return buy, sell, portfolio
+    return buy, sell#, portfolio

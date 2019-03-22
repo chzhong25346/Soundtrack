@@ -50,9 +50,11 @@ def map_report(config,df):
         downtrend = record['downtrend'],
         uptrend = record['uptrend'],
         high_volume = record['high_volume'],
-        low_volume = record['low_volume'],
-        pattern = record['pattern'],
-        support = record['support'],
+        rsi = record['rsi'],
+        macd = record['macd'],
+        # low_volume = record['low_volume'],
+        # pattern = record['pattern'],
+        # support = record['support'],
         volume_price = record['volume_price']
     ) for record in df_records]
     logger.info('Mapping completed.')

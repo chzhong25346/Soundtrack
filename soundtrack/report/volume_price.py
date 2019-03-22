@@ -5,7 +5,8 @@ logger = logging.getLogger('main.volume_price')
 
 def volume_price(ticker, df):
     today = dt.datetime.today().strftime("%Y-%m-%d")
-    df.set_index('date', inplace=True)
+    df = df.copy()
+    # df.set_index('date', inplace=True)
     ema21 = ema(df,21)
     ema5 = ema(df,5)
     av90 = average_volume(df)

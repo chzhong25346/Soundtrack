@@ -104,8 +104,8 @@ def analyze(index_name):
     # Create table based on Models
     db.create_all()
     df = report(s)
-    model_list = map_report(Config,df)
-    bulk_save(s, model_list)
+    model_list = map_report(Config,df)  ####CHECKPOINT
+    bulk_save(s, model_list)  ####CHECKPOINT
 
     # # Proceed with Optimization if index=TSXCI
     # if(index_name == 'tsxci'):

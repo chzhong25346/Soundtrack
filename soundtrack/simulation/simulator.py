@@ -4,8 +4,7 @@ import logging
 import datetime as dt
 from ..db.read import *
 from ..db.write import *
-from .trigger import (bull_hivolume_uptrend, bull_oneyrlow_doji_hivolume,
-                    bear_hivolume_downtrend, bear_oneyrhigh_doji_downtrend)
+from .trigger import buy_strategy_a, sell_strategy_a
 from .quote import get_quote
 from .trade import execute_order
 # from .rbreaker import rbreaker
@@ -20,27 +19,27 @@ def simulator(s):
     # read report
     df_report = pd.read_sql(s.query(Report).filter(Report.date == date).statement, s.bind, index_col='symbol')
     # BUY list
-    all_in,half_in = buy_list(df_report)
+    all_in = buy_list(df_report)
     # SELL list
-    all_out,half_out = sell_list(df_report)
+    all_out = sell_list(df_report)
     # BUY Order
     if all_in:
         quote_list = get_quote(all_in,s)
         # execute buy order - trade.py
         execute_order(quote_list,10000,"buy",s)
-    if half_in:
-        quote_list = get_quote(half_in,s)
-        # execute buy order $5000 - trade.py
-        execute_order(quote_list,5000,"buy",s)
+    # if half_in:
+    #     quote_list = get_quote(half_in,s)
+    #     # execute buy order $5000 - trade.py
+    #     execute_order(quote_list,5000,"buy",s)
     # SELL Order
     if all_out:
         quote_list = get_quote(all_out,s)
         # execute sell order - all holding quantity - trade.py
         execute_order(quote_list,10000,"sell",s)
-    if half_out:
-        quote_list = get_quote(half_out,s)
-        # execute sell order - half holding quntity - trade.py
-        execute_order(quote_list,5000,"sell",s)
+    # if half_out:
+    #     quote_list = get_quote(half_out,s)
+    #     # execute sell order - half holding quntity - trade.py
+    #     execute_order(quote_list,5000,"sell",s)
     # refreshing holding table
     refresh_holding(s)
     # rbreaker(engine_simulation, engine_dailydb)
@@ -51,11 +50,11 @@ def buy_list(df):
     return lists of tickers based on Buy triggers
     '''
     #  trigger.py
-    all_in = bull_hivolume_uptrend(df)
+    all_in = buy_strategy_a(df)
     logger.debug('Buy All: %s', ','.join(all_in))
-    half_in = bull_oneyrlow_doji_hivolume(df)
-    logger.debug('Buy Half: %s', ','.join(half_in))
-    return all_in,half_in
+    # half_in = bull_oneyrlow_doji_hivolume(df)
+    # logger.debug('Buy Half: %s', ','.join(half_in))
+    return all_in
 
 
 def sell_list(df):
@@ -63,12 +62,12 @@ def sell_list(df):
     return lists of tickers based on Sell triggers
     '''
     # trigger.py
-    all_out = bear_hivolume_downtrend(df)
+    all_out = sell_strategy_a(df)
     logger.debug('Sell All: %s', ','.join(all_out))
-    half_out = None
+    # half_out = None
     # half_out = bear_oneyrhigh_doji_downtrend(df)
     # logger.debug('Sell Half: %s', ','.join(half_out) )
-    return all_out,half_out
+    return all_out
 
 
 def refresh_holding(s):

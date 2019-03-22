@@ -4,8 +4,10 @@ import numpy as np
 from .ema import trend_potential
 from .volume import unusual_volume
 from .fiftytwoWeek import fiftytwo_week
-from .pattern import find_pattern
-from .support import support
+# from .pattern import find_pattern
+# from .support import support
+from .rsi import rsi
+from .macd import macd
 from .volume_price import volume_price
 from ..utils.util import groupby_na_to_zero
 from ..db.read import read_ticker
@@ -16,10 +18,10 @@ logger = logging.getLogger('main.report')
 
 def report(s):
     tickerL = read_ticker(s)
-    # tickerL = ['CM']
+    # tickerL = ['CSCO']  #### CHECKPOINT
     # temp df for report with predefined columns
-    columns=['symbol','yr_high','yr_low','downtrend','uptrend','pattern','high_volume','low_volume','support']
-    dtypes =['str','int','int','int','int','str','int','int','int']
+    columns=['symbol','yr_high','yr_low','downtrend','uptrend','high_volume','volume_price','rsi','macd']
+    dtypes =['str','int','int','int','int','int','int','str','str']
     report_df = df_empty(columns, dtypes)
     for symbol in tickerL:
         # read daily db return df in random order
@@ -35,18 +37,21 @@ def report(s):
         # 52w high/low/trending append to df
         report_df = report_df.append(fiftytwo_week(symbol,df),ignore_index=True)
         # decide if known pattern append to df
-        report_df = report_df.append(find_pattern(symbol,df),ignore_index=True)
+        # report_df = report_df.append(find_pattern(symbol,df),ignore_index=True)
         # decide if close to support line append to df
-        report_df = report_df.append(support(symbol,df),ignore_index=True)
+        # report_df = report_df.append(support(symbol,df),ignore_index=True)
         # decide if colume price turnning positive append to df
         report_df = report_df.append(volume_price(symbol,df),ignore_index=True)
+        # RSI
+        report_df = report_df.append(rsi(symbol,df),ignore_index=True)
+        # MACD
+        report_df = report_df.append(macd(symbol,df),ignore_index=True)
     # if 'volume_price' not in df.columns:
     #     report_df['volume_price'] = np.nan
     # # grouby using first() and NaN to Zero and Date is a column
     report_df = groupby_na_to_zero(report_df, 'symbol')
     report_df = report_df.reset_index()
     logger.info('Report Completed, total: %s equities.' % (len(report_df.index)))
-
     return report_df
 
 
