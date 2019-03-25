@@ -32,5 +32,7 @@ def macd_attribute(macd, macds, macdh):
         return 'pos-buy'
     elif (macd > 0 and macds > 0 and macdh < 0):
         return 'pos-sell'
-    else:
+    elif (macd > 0 and macds > 0 and macdh > 0):
+        return 'neg'
+    elif (macd < 0 and macds < 0 and macdh < 0):
         return 'neg'
