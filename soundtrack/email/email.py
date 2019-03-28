@@ -112,6 +112,8 @@ def read_log():
         for line in file:
             if((day in line) and ('Buy All' in line)):
                 buy += "<li>" + line[line.index(s) + len(s):] + "</li>"
+            elif((day in line) and ('Buy Half' in line)):
+                buy += "<li>" + line[line.index(s) + len(s):] + "</li>"
             elif((day in line) and ('Sell All' in line)):
                 sell += "<li>" + line[line.index(s) + len(s):] + "</li>"
             # elif((day in line) and (('optimize' in line)) ):

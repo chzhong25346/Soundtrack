@@ -10,6 +10,16 @@ def buy_strategy_a(df):
         pass
 
 
+def buy_strategy_b(df):
+    try:
+        return df[(df['yr_high'] == 0) & (df['yr_low'] == 0) & (df['downtrend'] == 0) &
+                (df['uptrend'] == 1) & (df['high_volume'] == 1) & (df['volume_price'] == 0)].index.tolist()
+    except Exception as e:
+        logger.debug('bull_hivolume_uptrend: Missing Field in Report for Calculation!')
+        pass
+
+
+
 # def bull_oneyrlow_doji_hivolume(df):
 #     '''
 #     52week low and has any doji and high_volume
@@ -26,7 +36,8 @@ def buy_strategy_a(df):
 
 def sell_strategy_a(df):
     try:
-        return df[(df['downtrend']>0)].index.tolist()
+        return df[(df['yr_high'] == 1) & (df['downtrend'] == 1) &
+                (df['high_volume'] == 1) & (df['volume_price'] == 0)].index.tolist()
     except Exception as e:
         logger.debug('bear_hivolume_downtrend: Missing Field in Report for Calculation!')
         pass

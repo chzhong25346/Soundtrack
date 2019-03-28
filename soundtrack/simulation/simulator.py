@@ -4,7 +4,7 @@ import logging
 import datetime as dt
 from ..db.read import *
 from ..db.write import *
-from .trigger import buy_strategy_a, sell_strategy_a
+from .trigger import buy_strategy_a, buy_strategy_b, sell_strategy_a
 from .quote import get_quote
 from .trade import execute_order
 # from .rbreaker import rbreaker
@@ -19,7 +19,7 @@ def simulator(s):
     # read report
     df_report = pd.read_sql(s.query(Report).filter(Report.date == date).statement, s.bind, index_col='symbol')
     # BUY list
-    all_in = buy_list(df_report)
+    all_in, half_in = buy_list(df_report)
     # SELL list
     all_out = sell_list(df_report)
     # BUY Order
@@ -27,10 +27,10 @@ def simulator(s):
         quote_list = get_quote(all_in,s)
         # execute buy order - trade.py
         execute_order(quote_list,10000,"buy",s)
-    # if half_in:
-    #     quote_list = get_quote(half_in,s)
-    #     # execute buy order $5000 - trade.py
-    #     execute_order(quote_list,5000,"buy",s)
+    if half_in:
+        quote_list = get_quote(half_in,s)
+        # execute buy order $5000 - trade.py
+        execute_order(quote_list,5000,"buy",s)
     # SELL Order
     if all_out:
         quote_list = get_quote(all_out,s)
@@ -52,9 +52,9 @@ def buy_list(df):
     #  trigger.py
     all_in = buy_strategy_a(df)
     logger.debug('Buy All: %s', ','.join(all_in))
-    # half_in = bull_oneyrlow_doji_hivolume(df)
-    # logger.debug('Buy Half: %s', ','.join(half_in))
-    return all_in
+    half_in = buy_strategy_b(df)
+    logger.debug('Buy Half: %s', ','.join(half_in))
+    return all_in, half_in
 
 
 def sell_list(df):
