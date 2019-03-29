@@ -36,8 +36,8 @@ def buy_strategy_b(df):
 
 def sell_strategy_a(df):
     try:
-        return df[(df['yr_high'] == 1) & (df['downtrend'] == 1) &
-                (df['high_volume'] == 1) & (df['volume_price'] == 0)].index.tolist()
+        return df[(df['yr_high'] == 0) & (df['yr_low'] == 0) & (df['downtrend'] == 1) &
+                (df['high_volume'] == 1) & (df['uptrend'] == 0)].index.tolist()
     except Exception as e:
         logger.debug('bear_hivolume_downtrend: Missing Field in Report for Calculation!')
         pass
