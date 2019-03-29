@@ -39,5 +39,5 @@ class Db():
 
     def session(self):
         Session = sessionmaker(bind=self.engine)
-        logger.info(self.engine)
+        logger.info("Session in '%s'" % self.db_name)
         return Session()

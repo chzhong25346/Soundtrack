@@ -1,6 +1,7 @@
 import pandas as pd
 import logging
-logger = logging.getLogger('main.db')
+from sqlalchemy import exc
+logger = logging.getLogger('main.write')
 
 # def create_table(engine, model_list):
 #     Obj = model_list[0]
@@ -11,8 +12,23 @@ def bulk_save(session, model_list):
     try:
         session.bulk_save_objects(model_list)
         session.commit()
-        # logger.info('Worte to Db.')
-    except Exception as e:
-        logger.error(e)
+    except exc.IntegrityError:
         session.rollback()
-        pass
+        raise foundDup('Found duplicate')
+    except:
+        session.rollback()
+        raise writeError('Writing failed')
+
+
+class writeError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+
+class foundDup(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)

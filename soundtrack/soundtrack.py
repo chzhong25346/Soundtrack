@@ -1,7 +1,8 @@
 from .utils.config import Config
+from .utils.fetch import get_daily_adjusted, fetchError
 from .db.db import Db
 from .db.mapping import map_index, map_quote, map_report
-from .db.write import bulk_save
+from .db.write import bulk_save, writeError, foundDup
 from .db.read import read_ticker, has_index, read_exist
 from .email.email import sendMail
 from .report.report import report
@@ -61,8 +62,9 @@ def main(argv):
             simulate(index_name)
         elif opt in ("-e", "--emailing"): # Emailing
             emailing()
+            # pass
     elapsed = math.ceil((time.time() - time_start)/60)
-    logger.info('Program took ' + str(elapsed) + ' minutes to run')
+    logger.info("%s took %d minutes to run" % ( (',').join(argv), elapsed ) )
 
 
 def update(type, today_only, index_name, fix=False):
@@ -78,20 +80,25 @@ def update(type, today_only, index_name, fix=False):
         bulk_save(s, map_index(index_name))
     tickerL = read_ticker(s)
     for ticker in tickerL:
-        if (fix == True and read_exist(s, ticker) == False):
-            try:
-                logger.info('Fixing: %s' % (ticker))
-                model_list = map_quote(Config,ticker,type,today_only,index_name)
+        try:
+            if (fix == True and read_exist(s, ticker) == False):
+                df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+                model_list = map_quote(df, ticker)
                 bulk_save(s, model_list)
-            except:
-                logger.error('Unable to fix: %s' % (ticker))
-        elif(fix == False):
-            try:
-                logger.info('Processing: %s' % (ticker))
-                model_list = map_quote(Config,ticker,type,today_only,index_name)
+                print("--> %s" % ticker)
+            elif(fix == False):
+                df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+                model_list = map_quote(df, ticker)
                 bulk_save(s, model_list)
-            except:
-                logger.error('Unable to process: %s' % (ticker))
+                print("--> %s" % ticker)
+        except writeError as e:
+            logger.error("%s - %s" % (e.value, ticker))
+        except foundDup as e:
+            logger.error("%s - %s" % (e.value, ticker))
+        except fetchError as e:
+            logger.error("%s - %s" % (e.value, ticker))
+        except:
+            logger.error(ticker)
     s.close()
 
 

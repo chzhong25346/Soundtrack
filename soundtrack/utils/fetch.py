@@ -26,8 +26,9 @@ def fetch_index(index_name):
             data.columns = ['symbol', 'company']
             # data = normalize_Todash(data)
             return data
-    except Exception as e:
-        logger.error('Unable to fetch index! {%s}' % e)
+    except:
+        # logger.error('Failed to fetch index! {%s}' % e)
+        raise fetchError('Fetching failed')
 
 
 # def fetch_index():
@@ -67,5 +68,13 @@ def get_daily_adjusted(config,ticker,size,today_only,index_name):
             df.index.name = 'date'
             df = df.reset_index()
             return df
-    except Exception as e:
-        logger.error(e)
+    except:
+        # logger.error('Failed to fetch %s' % ticker)
+        raise fetchError('Fetching failed')
+
+
+class fetchError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)

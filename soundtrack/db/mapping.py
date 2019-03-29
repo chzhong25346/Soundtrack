@@ -20,8 +20,7 @@ def map_index(index_name):
     return model_instnaces
 
 
-def map_quote(config,ticker,size,today_only,index_name):
-    df = get_daily_adjusted(config,ticker,size,today_only,index_name)
+def map_quote(df, ticker):
     df_records = df.to_dict('records')
     model_instnaces = [Quote(
         id = gen_id(ticker+str(record['date'])),
