@@ -20,6 +20,16 @@ def bulk_save(session, model_list):
         raise writeError('Writing failed')
 
 
+def insert_onebyone(session, model_list):
+    for model in model_list:
+        try:
+            session.add(model)
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            pass
+
+
 class writeError(Exception):
     def __init__(self, value):
         self.value = value

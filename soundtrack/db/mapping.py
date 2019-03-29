@@ -37,6 +37,21 @@ def map_quote(df, ticker):
     return model_instnaces
 
 
+def map_fix_quote(sr, ticker):
+    model_instance = Quote(
+        id = gen_id(ticker+str(sr['date'])),
+        symbol = ticker,
+        date = sr['date'],
+        open = sr['open'],
+        high = sr['high'],
+        low = sr['low'],
+        close = sr['close'],
+        adjusted = sr['adjusted close'],
+        volume = sr['volume']
+        )
+    return model_instance
+
+
 def map_report(config,df):
     date = dt.datetime.today().strftime("%Y-%m-%d")
     df_records = df.to_dict('records')

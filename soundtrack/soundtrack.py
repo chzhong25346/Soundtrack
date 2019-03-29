@@ -1,8 +1,8 @@
 from .utils.config import Config
 from .utils.fetch import get_daily_adjusted, fetchError
 from .db.db import Db
-from .db.mapping import map_index, map_quote, map_report
-from .db.write import bulk_save, writeError, foundDup
+from .db.mapping import map_index, map_quote, map_fix_quote, map_report
+from .db.write import bulk_save, insert_onebyone, writeError, foundDup
 from .db.read import read_ticker, has_index, read_exist
 from .email.email import sendMail
 from .report.report import report
@@ -51,8 +51,8 @@ def main(argv):
                 update(type, today_only, index_name)  # Compact update for today
             elif(arg == 'fix'):
                 index_name = argv[2]
-                type = 'compact'
-                today_only = True
+                type = 'full' # fixing requires full data
+                today_only = False
                 update(type, today_only, index_name, fix=True)  # Compact update for today
         elif opt in ("-r", "--report"):  # Report
             index_name = argv[1]
@@ -81,12 +81,15 @@ def update(type, today_only, index_name, fix=False):
     tickerL = read_ticker(s)
     for ticker in tickerL:
         try:
-            if (fix == True and read_exist(s, ticker) == False):
+            if (fix == True):
                 df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-                model_list = map_quote(df, ticker)
-                bulk_save(s, model_list)
-                print("--> %s" % ticker)
-            elif(fix == False):
+                model_list = []
+                for index, row in df.iterrows():
+                    model = map_fix_quote(row, ticker)
+                    model_list.append(model)
+                insert_onebyone(s, model_list)
+                print(f"--> %s" % ticker)
+            elif (fix == False):
                 df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
                 model_list = map_quote(df, ticker)
                 bulk_save(s, model_list)
@@ -98,7 +101,7 @@ def update(type, today_only, index_name, fix=False):
         except fetchError as e:
             logger.error("%s - %s" % (e.value, ticker))
         except:
-            logger.error(ticker)
+            logger.error("Updating failed - %s" % ticker)
     s.close()
 
 

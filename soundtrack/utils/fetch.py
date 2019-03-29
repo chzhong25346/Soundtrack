@@ -60,7 +60,7 @@ def get_daily_adjusted(config,ticker,size,today_only,index_name):
         df = df.drop(["7. dividend amount","8. split coefficient"], axis=1)
         df.columns = ["open","high","low","close","adjusted close","volume"]
         if today_only:
-            df = df.loc[df.index.max()].to_frame().T
+            df = df.loc[df.index.max()].to_frame().T # the latest quote
             df.index.name = 'date'
             df = df.reset_index()
             return df
