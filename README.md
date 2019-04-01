@@ -1,6 +1,6 @@
 # Soundtrack
 
-Soundtrack is a python script to fetch quotes (TSXCI, NASDAQ100 and SP100) from ALPHA VANTAGE (https://www.alphavantage.co/) and write to local database. Also it makes analysis reports that mark down important market signals and saves into tables. Lastly it simulates trading based on these signals.
+Soundtrack is a python script to fetch quotes (TSXCI, NASDAQ100 and SP100) from ALPHA VANTAGE (https://www.alphavantage.co/) and to write quotes to local database. Also it makes analysis reports that mark down important market signals and saves into tables. Lastly it simulates trading based on these signals.
 
 ## Getting Started
 
