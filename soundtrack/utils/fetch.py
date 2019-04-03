@@ -16,8 +16,8 @@ def fetch_index(index_name):
     try:
         if (index_name == 'nasdaq100'):
             data = pd.read_csv(filename)
-            data.columns = ['symbol', 'company', 'lastsale', 'netchange', 'netchange', 'share_volume', 'Nasdaq100_points','Unnamed: 7']
-            data = data.drop(['company', 'lastsale', 'netchange', 'netchange', 'share_volume', 'Nasdaq100_points', 'Unnamed: 7'], axis=1)
+            data.columns = ['symbol', 'company']
+            # data = data.drop(['lastsale', 'netchange', 'netchange', 'share_volume', 'Nasdaq100_points', 'Unnamed: 7'], axis=1)
             data.index.name = 'symbol'
             data = normalize_Todash(data)
             return data
@@ -26,7 +26,7 @@ def fetch_index(index_name):
             data.columns = ['symbol', 'company']
             # data = normalize_Todash(data)
             return data
-    except:
+    except Exception as e:
         # logger.error('Failed to fetch index! {%s}' % e)
         raise fetchError('Fetching failed')
 

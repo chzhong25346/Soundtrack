@@ -87,8 +87,8 @@ def update(type, today_only, index_name, fix=False):
                 for index, row in df.iterrows():
                     model = map_fix_quote(row, ticker)
                     model_list.append(model)
-                insert_onebyone(s, model_list)
                 logger.info("--> %s" % ticker)
+                insert_onebyone(s, model_list)    
             elif (fix == False):
                 df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
                 model_list = map_quote(df, ticker)
