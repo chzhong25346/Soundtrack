@@ -1,5 +1,6 @@
 from .utils.config import Config
 from .utils.fetch import get_daily_adjusted, fetchError
+from .utils.util import missing_ticker
 from .db.db import Db
 from .db.mapping import map_index, map_quote, map_fix_quote, map_report
 from .db.write import bulk_save, insert_onebyone, writeError, foundDup
@@ -23,20 +24,20 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"u:rse",["update=", "report=", "simulate=", "emailing="])
     except getopt.GetoptError:
-        print('run.py -u <full|compact|fix> <nasdaq100|tsxci|sp100>')
+        print('run.py -u <full|compact|fastfix|slowfix> <nasdaq100|tsxci|sp100>')
         print('run.py -r <nasdaq100|tsxci|sp100>')
         print('run.py -s <nasdaq100|tsxci|sp100>')
         print('run.py -e')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('run.py -u <full|compact|fix>  <nasdaq100|tsxci|sp100>')
+            print('run.py -u <full|compact|fastfix|slowfix>  <nasdaq100|tsxci|sp100>')
             print('run.py -r <nasdaq100|tsxci|sp100>')
             print('run.py -s <nasdaq100|tsxci|sp100>')
             print('run.py -e')
             sys.exit()
         elif (opt == '-u' and len(argv) != 3):
-            print('run.py -u <full|compact|fix>  <nasdaq100|tsxci|sp100>')
+            print('run.py -u <full|compact|fastfix|slowfix  <nasdaq100|tsxci|sp100>')
             sys.exit()
         elif opt in ("-u", "--update"):
             if(arg == 'full'):
@@ -49,11 +50,16 @@ def main(argv):
                 type = arg
                 today_only = True
                 update(type, today_only, index_name)  # Compact update for today
-            elif(arg == 'fix'):
+            elif(arg == 'slowfix'):
                 index_name = argv[2]
                 type = 'full' # fixing requires full data
                 today_only = False
-                update(type, today_only, index_name, fix=True)  # Compact update for today
+                update(type, today_only, index_name, fix='slowfix')  # Compact update for today
+            elif(arg == 'fastfix'):
+                index_name = argv[2]
+                type = 'full' # fixing requires full data
+                today_only = False
+                update(type, today_only, index_name, fix='fastfix')  # Compact update for today
         elif opt in ("-r", "--report"):  # Report
             index_name = argv[1]
             analyze(index_name)
@@ -79,9 +85,13 @@ def update(type, today_only, index_name, fix=False):
         # Fetch/Mapping/Write Index
         bulk_save(s, map_index(index_name))
     tickerL = read_ticker(s)
+    
+    if (fix == 'slowfix'):
+        tickerL = missing_ticker(index_name)
+
     for ticker in tickerL:
         try:
-            if (fix == True):
+            if (fix == 'fastfix'): # Fast Update, bulk
                 df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
                 model_list = []
                 for index, row in df.iterrows():
@@ -89,20 +99,27 @@ def update(type, today_only, index_name, fix=False):
                     model_list.append(model)
                 logger.info("--> %s" % ticker)
                 bulk_save(s, model_list)
-                # insert_onebyone(s, model_list)  #### fix this 
-            elif (fix == False):
+            elif (fix == 'slowfix'): # Slow Update, one by one based on log.log
+                df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+                model_list = []
+                for index, row in df.iterrows():
+                    model = map_fix_quote(row, ticker)
+                    model_list.append(model)
+                logger.info("--> %s" % ticker)
+                insert_onebyone(s, model_list)
+            else: # Compact Update
                 df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
                 model_list = map_quote(df, ticker)
                 bulk_save(s, model_list)
                 logger.info("--> %s" % ticker)
         except writeError as e:
-            logger.error("%s - %s" % (e.value, ticker))
+            logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
         except foundDup as e:
-            logger.error("%s - %s" % (e.value, ticker))
+            logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
         except fetchError as e:
-            logger.error("%s - %s" % (e.value, ticker))
+            logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
         except:
-            logger.error("Updating failed - %s" % ticker)
+            logger.error("Updating failed - (index_name,%s)" % (index_name,ticker))
     s.close()
 
 
