@@ -100,14 +100,13 @@ def update(type, today_only, index_name, fix=False):
                 logger.info("--> %s" % ticker)
                 bulk_save(s, model_list)
             elif (fix == 'slowfix'): # Slow Update, one by one based on log.log
-                print(ticker)
-                # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-                # model_list = []
-                # for index, row in df.iterrows():
-                #     model = map_fix_quote(row, ticker)
-                #     model_list.append(model)
-                # logger.info("--> %s" % ticker)
-                # insert_onebyone(s, model_list)
+                df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+                model_list = []
+                for index, row in df.iterrows():
+                    model = map_fix_quote(row, ticker)
+                    model_list.append(model)
+                logger.info("--> %s" % ticker)
+                insert_onebyone(s, model_list)
             else: # Compact Update
                 df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
                 model_list = map_quote(df, ticker)
