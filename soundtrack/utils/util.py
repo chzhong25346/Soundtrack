@@ -26,8 +26,8 @@ def missing_ticker(index):
     for line in fh:
         if 'Found duplicate' not in line:
             strings = re.findall(rx, line)
-            if strings:
-                tickers.add(strings[0].split(',')[1])
+            if strings and index in strings[0]:
+                    tickers.add(strings[0].split(',')[1])
     logger.info('Found %d missing quotes in %s' % (len(tickers), index))
     fh.close()
     return list(tickers)
