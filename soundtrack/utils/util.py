@@ -21,12 +21,13 @@ def groupby_na_to_zero(df, ticker):
 
 def missing_ticker(index):
     tickers = set()
-    fh = open('log.log', 'r')
     rx = re.compile("\((.+)\)")
-    strings = re.findall(rx, fh.read())
-    fh.close()
-    for s in strings:
-        if(index in s):
-            tickers.add(s.split(',')[1])
+    fh = open('log.log', 'r')
+    for line in fh:
+        if 'Found duplicate' not in line:
+            strings = re.findall(rx, line)
+            if strings:
+                tickers.add(strings[0].split(',')[1])
     logger.info('Found %d missing quotes in %s' % (len(tickers), index))
+    fh.close()
     return list(tickers)
