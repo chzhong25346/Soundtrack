@@ -3,11 +3,12 @@ logger = logging.getLogger('main.trigger')
 
 
 def buy_strategy_a(df):
-    try:
-        return df[(df['volume_price']>0) & (df['macd']=='buy')].index.tolist()
-    except Exception as e:
-        logger.debug('bull_hivolume_uptrend: Missing Field in Report for Calculation!')
-        pass
+    # try:
+    #     return df[(df['volume_price']>0) & (df['macd']=='buy')].index.tolist()
+    # except Exception as e:
+    #     logger.debug('bull_hivolume_uptrend: Missing Field in Report for Calculation!')
+    #     pass
+    pass
 
 
 def buy_strategy_b(df):

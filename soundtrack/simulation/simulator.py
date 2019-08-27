@@ -51,7 +51,7 @@ def buy_list(df):
     '''
     #  trigger.py
     all_in = buy_strategy_a(df)
-    logger.debug('Buy All: %s', ','.join(all_in))
+    # logger.debug('Buy All: %s', ','.join(all_in))
     half_in = buy_strategy_b(df)
     logger.debug('Buy Half: %s', ','.join(half_in))
     return all_in, half_in
