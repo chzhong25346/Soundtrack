@@ -18,7 +18,6 @@ def macd(ticker, df):
     ymacds = stock['macds'][-2]
     ymacdh = stock['macdh'][-2]
     yatt = macd_attribute(ymacd, ymacds, ymacdh)
-
     if (yatt=='neg' and tatt=='pos-buy'):
         return {'symbol':ticker,'macd':'buy'}
     elif (yatt=='neg' and tatt=='pos-sell'):

@@ -39,9 +39,10 @@ class Report(db.Model):
     # low_volume = db.Column(db.Boolean, nullable=True)
     # support = db.Column(db.Boolean, nullable=True)
     # pattern = db.Column(db.String(20), nullable=True)
-    volume_price = db.Column(db.Boolean, nullable=True)
+    # volume_price = db.Column(db.Boolean, nullable=True)
     rsi = db.Column(db.String(4), nullable=True)
     macd = db.Column(db.String(4), nullable=True)
+    bolling = db.Column(db.String(10), nullable=True)
 
 
 class Holding(db.Model):

@@ -6,7 +6,7 @@ logger = logging.getLogger('main.volume')
 def unusual_volume(ticker,df):
     '''
     require df
-    high volume = over 100% growth of average volume
+    high volume = over 90% growth of average volume
     ,low = over 75% loss of average volume
     return dic
     '''

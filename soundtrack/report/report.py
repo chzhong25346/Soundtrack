@@ -8,7 +8,8 @@ from .fiftytwoWeek import fiftytwo_week
 # from .support import support
 from .rsi import rsi
 from .macd import macd
-from .volume_price import volume_price
+from .bolling import bolling
+# from .volume_price import volume_price
 from ..utils.util import groupby_na_to_zero
 from ..db.read import read_ticker
 from ..models import Index, Quote, Report
@@ -18,10 +19,10 @@ logger = logging.getLogger('main.report')
 
 def report(s):
     tickerL = read_ticker(s)
-    # tickerL = ['CSCO']  #### CHECKPOINT
+    # tickerL = ['BIDU']  #### CHECKPOINT
     # temp df for report with predefined columns
-    columns=['symbol','yr_high','yr_low','downtrend','uptrend','high_volume','volume_price','rsi','macd']
-    dtypes =['str','int','int','int','int','int','int','str','str']
+    columns=['symbol','yr_high','yr_low','downtrend','uptrend','high_volume','rsi','macd','bolling']
+    dtypes =['str','int','int','int','int','int','str','str','str']
     report_df = df_empty(columns, dtypes)
     for symbol in tickerL:
         # read daily db return df in random order
@@ -41,11 +42,13 @@ def report(s):
         # decide if close to support line append to df
         # report_df = report_df.append(support(symbol,df),ignore_index=True)
         # decide if colume price turnning positive append to df
-        report_df = report_df.append(volume_price(symbol,df),ignore_index=True)
+        # report_df = report_df.append(volume_price(symbol,df),ignore_index=True)
         # RSI
         report_df = report_df.append(rsi(symbol,df),ignore_index=True)
         # MACD
         report_df = report_df.append(macd(symbol,df),ignore_index=True)
+        # BOLLING
+        report_df = report_df.append(bolling(symbol,df),ignore_index=True)
     # if 'volume_price' not in df.columns:
     #     report_df['volume_price'] = np.nan
     # # grouby using first() and NaN to Zero and Date is a column
