@@ -49,4 +49,4 @@ def bolling(ticker, df):
 
     elif ( Is_Last5_break == False and low < lower and close <= lower ):
         # print( {'symbol':ticker,'bolling':'sell'} )
-        return {'symbol':ticker,'bolling':'shell'}
+        return {'symbol':ticker,'bolling':'sell'}
