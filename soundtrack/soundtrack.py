@@ -90,6 +90,7 @@ def update(type, today_only, index_name, fix=False):
         tickerL = missing_ticker(index_name)
 
     for ticker in tickerL:
+    # for ticker in ['AMD']: # Fast fix a ticker
         try:
             if (fix == 'fastfix'): # Fast Update, bulk
                 df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
