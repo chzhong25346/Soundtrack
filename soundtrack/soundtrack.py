@@ -160,15 +160,14 @@ def simulate(index_name):
 def emailing():
     logger.info('Run Task: [Emailing]')
     Config.DB_NAME='nasdaq100'
-    db_nasdaq = Db(Config)
-    s_nasdaq = db_nasdaq.session()
+    s_nasdaq = Db(Config).session()
     Config.DB_NAME='tsxci'
-    db_tsxci = Db(Config)
-    s_tsxci = db_tsxci.session()
+    s_tsxci = Db(Config).session()
     Config.DB_NAME='sp100'
-    db_sp100 = Db(Config)
-    s_sp100 = db_sp100.session()
-    sendMail(Config, s_nasdaq, s_tsxci, s_sp100)
+    s_sp100 = Db(Config).session()
+    Config.DB_NAME='csi300'
+    s_csi300 = Db(Config).session()
+    sendMail(Config, s_nasdaq, s_tsxci, s_sp100, s_csi300)
     s_nasdaq.close()
     s_tsxci.close()
     s_sp100.close()

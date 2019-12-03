@@ -11,7 +11,7 @@ from dateutil import parser
 from ..models import Holding, Report
 logger = logging.getLogger('main.email')
 
-def sendMail(object, s_nasdaq, s_tsxci, s_sp100):
+def sendMail(object, s_nasdaq, s_tsxci, s_sp100, s_csi300):
     # today's datetime
     day = dt.datetime.today().strftime("%Y-%m-%d")
     dow = parser.parse(day).strftime("%a")
@@ -36,7 +36,7 @@ def sendMail(object, s_nasdaq, s_tsxci, s_sp100):
     msg['From'] = user
     msg['To'] = ", ".join(rcpt)
 
-    html = generate_html(s_nasdaq, s_tsxci, s_sp100)
+    html = generate_html(s_nasdaq, s_tsxci, s_sp100, s_csi300)
     attachment = MIMEText(html, 'html')
 
     # Attach parts into message container.
@@ -50,7 +50,7 @@ def sendMail(object, s_nasdaq, s_tsxci, s_sp100):
     s.quit()
 
 
-def generate_html(s_nasdaq, s_tsxci, s_sp100):
+def generate_html(s_nasdaq, s_tsxci, s_sp100, s_csi300):
     # Nasdaq100
     nasdaq_holding = pd.read_sql(s_nasdaq.query(Holding).statement, s_nasdaq.bind, index_col='symbol').sort_values(by=['change_percent'],ascending=0)
     # nasdaq_uptrend = [Report.symbol for Report in s_nasdaq.query(Report).filter(Report.uptrend == 1)]
@@ -64,6 +64,7 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
     # tsxci_high_volume = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.high_volume == 1)]
     # tsxci_support = [Report.symbol for Report in s_tsxci.query(Report).filter(Report.support == 1)]
     sp100_holding = pd.read_sql(s_sp100.query(Holding).statement, s_sp100.bind, index_col='symbol').sort_values(by=['change_percent'],ascending=0)
+    csi300_holding = pd.read_sql(s_csi300.query(Holding).statement, s_csi300.bind, index_col='symbol').sort_values(by=['change_percent'],ascending=0)
 
     buy,sell = read_log()
 
@@ -80,6 +81,9 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
         <h3>SP100</h3>
         {sp100_holding}<br>
 
+        <h3>CSI300</h3>
+        {csi300_holding}<br>
+
         <h4> <font color="green">Long </font></h4>
         <p>{buy}</p>
 
@@ -94,6 +98,7 @@ def generate_html(s_nasdaq, s_tsxci, s_sp100):
     html = html.format(nasdaq_holding=nasdaq_holding.to_html(),
                       tsxci_holding=tsxci_holding.to_html(),
                       sp100_holding=sp100_holding.to_html(),
+                      csi300_holding=csi300_holding.to_html(),
                       buy = buy,
                       sell = sell)
 
