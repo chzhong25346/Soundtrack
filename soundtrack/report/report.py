@@ -9,7 +9,7 @@ from .fiftytwoWeek import fiftytwo_week
 from .rsi import rsi
 from .macd import macd
 from .bolling import bolling
-from .adx import adx
+# from .adx import adx
 # from .volume_price import volume_price
 from ..utils.util import groupby_na_to_zero
 from ..db.read import read_ticker
@@ -22,8 +22,8 @@ def report(s):
     tickerL = read_ticker(s)
     # tickerL = ['AMD']  #### CHECKPOINT
     # temp df for report with predefined columns
-    columns=['symbol','yr_high','yr_low','downtrend','uptrend','high_volume','rsi','macd','bolling','adx']
-    dtypes =['str','int','int','int','int','int','str','str','str','str']
+    columns=['symbol','yr_high','yr_low','downtrend','uptrend','high_volume','rsi','macd','bolling']
+    dtypes =['str','int','int','int','int','int','str','str','str']
     report_df = df_empty(columns, dtypes)
     for symbol in tickerL:
         # print(symbol)
@@ -52,7 +52,7 @@ def report(s):
         # BOLLING
         report_df = report_df.append(bolling(symbol,df),ignore_index=True)
         # ADX
-        report_df = report_df.append(adx(symbol,df),ignore_index=True)
+        # report_df = report_df.append(adx(symbol,df),ignore_index=True)
     # if 'volume_price' not in df.columns:
     #     report_df['volume_price'] = np.nan
     # # grouby using first() and NaN to Zero and Date is a column

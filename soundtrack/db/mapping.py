@@ -67,7 +67,7 @@ def map_report(config,df):
         rsi = record['rsi'],
         macd = record['macd'],
         bolling = record['bolling'],
-        adx = record['adx'],
+        # adx = record['adx'],
         # low_volume = record['low_volume'],
         # pattern = record['pattern'],
         # support = record['support'],
