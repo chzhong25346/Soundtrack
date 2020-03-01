@@ -68,3 +68,32 @@ class Transaction(db.Model):
     quantity = db.Column(db.BIGINT, nullable=True)
     settlement = db.Column(db.Float, nullable=True)
     type = db.Column(db.String(6), nullable=False)
+
+# Well Licences Issued
+class St1(db.Model):
+    __tablename__ = 'st1'
+    date = db.Column(db.DateTime, unique=True, nullable=False, primary_key=True)
+    gas = db.Column(db.Integer, nullable=True)
+    oil = db.Column(db.Integer, nullable=True)
+    bitumen = db.Column(db.Integer, nullable=True)
+
+
+# DAILY DRILLING ACTIVITY LIST
+class St49(db.Model):
+    __tablename__ = 'st49'
+    date = db.Column(db.DateTime, unique=True, nullable=False, primary_key=True)
+    total = db.Column(db.Integer, nullable=True)
+    drill_to_ld = db.Column(db.Integer, nullable=True)
+    re_entry = db.Column(db.Integer, nullable=True)
+    resumption = db.Column(db.Integer, nullable=True)
+    set_surface = db.Column(db.Integer, nullable=True)
+
+
+# Facility Approval Disposition Daily Report
+class St97(db.Model):
+    __tablename__ = 'st97'
+    id = db.Column(db.String(40), unique=True, nullable=False, primary_key=True)
+    date = db.Column(db.DateTime, nullable=False)
+    licensee = db.Column(db.String(100), nullable=False)
+    purpose = db.Column(db.String(50), nullable=False)
+    type = db.Column(db.String(30), nullable=False)

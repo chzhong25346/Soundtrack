@@ -2,7 +2,7 @@ import pandas as pd
 import datetime as dt
 from ..utils.fetch import fetch_index, get_daily_adjusted
 from ..utils.util import gen_id
-from ..models import Index, Quote, Report, Transaction, Holding
+from ..models import Index, Quote, Report, Transaction, Holding, St1, St49, St97
 import logging
 logger = logging.getLogger('main.mapping')
 
@@ -107,6 +107,48 @@ def map_holding(df):
         mkt_price  = record['mkt_price'],
         mkt_value  = record['mkt_value'],
         note  = record['note'],
+    ) for record in df_records]
+    logger.info('Mapping completed.')
+
+    return model_instnaces
+
+
+def map_st1(df):
+    df_records = df.to_dict('records')
+    model_instnaces = [St1(
+        date = record['date'],
+        gas = record['gas'],
+        oil = record['oil'],
+        bitumen = record['bitumen'],
+    ) for record in df_records]
+    logger.info('Mapping completed.')
+
+    return model_instnaces
+
+
+def map_st49(df):
+    df_records = df.to_dict('records')
+    model_instnaces = [St49(
+        date = record['date'],
+        total  = record['total'],
+        drill_to_ld = record['drill_to_ld'],
+        re_entry = record['re_entry'],
+        resumption = record['resumption'],
+        set_surface = record['set_surface'],
+    ) for record in df_records]
+    logger.info('Mapping completed.')
+
+    return model_instnaces
+
+
+def map_st97(df):
+    df_records = df.to_dict('records')
+    model_instnaces = [St97(
+        id = gen_id(str(record['application']) + record['licensee'] + str(record['date'])),
+        date = record['date'],
+        licensee  = record['licensee'],
+        purpose = record['purpose'],
+        type = record['type'],
     ) for record in df_records]
     logger.info('Mapping completed.')
 

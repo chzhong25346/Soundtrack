@@ -9,6 +9,7 @@ from .email.email import sendMail
 from .report.report import report
 # from .report.optimize import optimize
 from .simulation.simulator import simulator
+from .learning.fetch_aer import fetch_aer
 import logging
 import logging.config
 import getopt
@@ -22,12 +23,13 @@ logger = logging.getLogger('main')
 def main(argv):
     time_start = time.time()
     try:
-        opts, args = getopt.getopt(argv,"u:rse",["update=", "report=", "simulate=", "emailing="])
+        opts, args = getopt.getopt(argv,"u:rsea",["update=", "report=", "simulate=", "emailing=", "aer="])
     except getopt.GetoptError:
         print('run.py -u <full|compact|fastfix|slowfix> <nasdaq100|tsxci|sp100>')
         print('run.py -r <nasdaq100|tsxci|sp100>')
         print('run.py -s <nasdaq100|tsxci|sp100>')
         print('run.py -e')
+        print('run.py -a')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
@@ -35,9 +37,13 @@ def main(argv):
             print('run.py -r <nasdaq100|tsxci|sp100>')
             print('run.py -s <nasdaq100|tsxci|sp100>')
             print('run.py -e')
+            print('run.py -a')
             sys.exit()
         elif (opt == '-u' and len(argv) < 3):
-            print('run.py -u <full|compact|fastfix|slowfix  <nasdaq100|tsxci|sp100> <ticker>')
+            print('run.py -u <full|compact|fastfix|slowfix> <nasdaq100|tsxci|sp100> <ticker>')
+            sys.exit()
+        elif (opt == '-a' and len(argv) < 3):
+            print('run.py -a <daily|full> <st1(License Issued)|st49(Drilling Activity)|st97(Facility Approval)>')
             sys.exit()
         elif opt in ("-u", "--update"):
             if(arg == 'full'):
@@ -68,7 +74,13 @@ def main(argv):
             simulate(index_name)
         elif opt in ("-e", "--emailing"): # Emailing
             emailing()
-            # pass
+        elif opt in ("-a", "--aer"): # Alberta Enenergy Regulator Reports
+            mode = argv[1]
+            if(mode == 'daily'):
+                aer(mode, report_type=argv[2])
+            elif(mode == 'full'):
+                aer(mode, report_type=argv[2])
+
     elapsed = math.ceil((time.time() - time_start)/60)
     logger.info("%s took %d minutes to run" % ( (',').join(argv), elapsed ) )
 
@@ -171,3 +183,26 @@ def emailing():
     s_nasdaq.close()
     s_tsxci.close()
     s_sp100.close()
+
+
+def aer(mode, report_type):
+    logger.info('Run Task: [AER Data]')
+    Config.DB_NAME='learning'
+    db = Db(Config)
+    s_learning = db.session()
+    # Create table based on Models
+    db.create_all()
+    try:
+        fetch_aer(mode, report_type, s_learning)
+        s_learning.close()
+    except writeError as e:
+        logger.error("%s - (Table: %s, Mode: %s)" % (e.value, report_type, mode))
+        s_learning.close()
+    except foundDup as e:
+        logger.error("%s - (Table: %s, Mode: %s)" % (e.value, report_type, mode))
+        s_learning.close()
+    except:
+        s_learning.close()
+        pass
+    # fetch_aer(mode, report_type, s_learning)
+    # s_learning.close()
