@@ -19,7 +19,8 @@ import os, sys
 logging.config.fileConfig('soundtrack/log/logging.conf')
 logger = logging.getLogger('main')
 
-
+# If fist time create a new function
+# Please use Create_all() tables
 def main(argv):
     time_start = time.time()
     try:
@@ -92,7 +93,7 @@ def update(type, today_only, index_name, fix=False, ticker=None):
     s = db.session()
     e = db.get_engine()
     # Create table based on Models
-    db.create_all()
+    # db.create_all()
     if has_index(s) == None:
         # Fetch/Mapping/Write Index
         bulk_save(s, map_index(index_name))
@@ -145,7 +146,7 @@ def analyze(index_name):
     s = db.session()
     e = db.get_engine()
     # Create table based on Models
-    db.create_all()
+    # db.create_all()
     df = report(s)
     model_list = map_report(Config,df)  ####CHECKPOINT
     bulk_save(s, model_list)  ####CHECKPOINT
@@ -164,7 +165,7 @@ def simulate(index_name):
     s = db.session()
     e = db.get_engine()
     # Create table based on Models
-    db.create_all()
+    # db.create_all()
     simulator(s)
     s.close()
 
@@ -191,7 +192,7 @@ def aer(mode, report_type):
     db = Db(Config)
     s_learning = db.session()
     # Create table based on Models
-    db.create_all()
+    # db.create_all()
     try:
         fetch_aer(mode, report_type, s_learning)
         s_learning.close()
