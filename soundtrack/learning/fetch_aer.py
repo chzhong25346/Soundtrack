@@ -13,7 +13,7 @@ logger = logging.getLogger('main.learning')
 def fetch_aer(mode, rtype, s):
     if mode == 'full':
         # Define report path here
-        path = "C:\\Users\\Administrator\\Downloads\\st97\\2020"
+        path = "C:\\Users\\Administrator\\Downloads\\st1\\2016\\dwll2016-02\\dwll2016-02"
         data = read_local(rtype, path)
         if rtype == 'st97':
             bulksave_report(rtype, s, data)
@@ -50,11 +50,11 @@ def read_local(rtype, path):
 def get_report_online(rtype):
     dow = (datetime.date.today() - timedelta(days=1)).strftime("%a") # Yesterday, format MON, TUE, WED...
     if rtype == 'st1':
-        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st1"
+        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st1.html"
     elif rtype == 'st49':
-        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st49"
+        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st49.html"
     if rtype == 'st97':
-        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st97"
+        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st97.html"
     headers={
     'Referer': 'https://itunes.apple.com',
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
