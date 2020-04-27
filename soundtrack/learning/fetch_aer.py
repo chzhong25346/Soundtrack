@@ -5,7 +5,7 @@ import datetime
 from datetime import timedelta
 from bs4 import BeautifulSoup
 from dateutil import parser
-from ..db.mapping import map_st1, map_st49, map_st97
+from ..db.mapping import map_st1, map_st49, map_st97, map_st100
 from ..db.write import bulk_save
 logger = logging.getLogger('main.learning')
 
@@ -13,7 +13,7 @@ logger = logging.getLogger('main.learning')
 def fetch_aer(mode, rtype, s):
     if mode == 'full':
         # Define report path here
-        path = "C:\\Users\\Administrator\\Downloads\\st1\\2016\\dwll2016-02\\dwll2016-02"
+        path = "C:\\Users\\Administrator\\Downloads\\st100\\2020"
         data = read_local(rtype, path)
         if rtype == 'st97':
             bulksave_report(rtype, s, data)
@@ -53,8 +53,10 @@ def get_report_online(rtype):
         url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st1.html"
     elif rtype == 'st49':
         url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st49.html"
-    if rtype == 'st97':
+    elif rtype == 'st97':
         url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st97.html"
+    elif rtype == 'st100':
+        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st100.html"
     headers={
     'Referer': 'https://itunes.apple.com',
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
@@ -134,7 +136,17 @@ def read_report(rtype, file):
             return df
         except:
             pass
-
+    if rtype == 'st100':
+        total = 0
+        for line in file:
+            mdate = re.search('(?<=Run Date: )(.*)', line)
+            mtotal =  re.search('(?<=TOTAL PIPELINE CONSTRUCTION NOTIFICATIONS =)(.*)', line)
+            if mdate:
+                date = parser.parse(mdate.group(0)[:14])
+            if mtotal:
+                total = re.findall(r'\b\d+\b', mtotal.group(0))[0]
+        data = {'date': date,'total': total}
+        return data
 
 
 # Bulk Save
@@ -145,4 +157,6 @@ def bulksave_report(rtype, s, df):
         bulk_save(s, map_st49(df))
     elif rtype == 'st97':
         bulk_save(s, map_st97(df))
+    elif rtype == 'st100':
+        bulk_save(s, map_st100(df))
     logger.debug('(AER %s) %s entires written' % ( rtype, len(df.index) ))

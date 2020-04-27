@@ -2,7 +2,7 @@ import pandas as pd
 import datetime as dt
 from ..utils.fetch import fetch_index, get_daily_adjusted
 from ..utils.util import gen_id
-from ..models import Index, Quote, Report, Transaction, Holding, St1, St49, St97
+from ..models import Index, Quote, Report, Transaction, Holding, St1, St49, St97, St100
 import logging
 logger = logging.getLogger('main.mapping')
 
@@ -149,6 +149,17 @@ def map_st97(df):
         licensee  = record['licensee'],
         purpose = record['purpose'],
         type = record['type'],
+    ) for record in df_records]
+    logger.info('Mapping completed.')
+
+    return model_instnaces
+
+
+def map_st100(df):
+    df_records = df.to_dict('records')
+    model_instnaces = [St100(
+        date = record['date'],
+        total  = record['total'],
     ) for record in df_records]
     logger.info('Mapping completed.')
 

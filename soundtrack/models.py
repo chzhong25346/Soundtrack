@@ -97,3 +97,10 @@ class St97(db.Model):
     licensee = db.Column(db.String(100), nullable=False)
     purpose = db.Column(db.String(50), nullable=False)
     type = db.Column(db.String(30), nullable=False)
+
+
+# Pipeline Construction Notification List
+class St100(db.Model):
+    __tablename__ = 'st100'
+    date = db.Column(db.DateTime, unique=True, nullable=False, primary_key=True)
+    total = db.Column(db.Integer, nullable=True)
