@@ -2,6 +2,7 @@ import urllib3,certifi
 import pandas as pd
 import json
 import time
+import requests
 import os
 from ..utils.util import normalize_Todash
 from datetime import datetime as dt
@@ -54,6 +55,31 @@ def get_daily_adjusted(config,ticker,size,today_only,index_name):
             return df
     except:
         # logger.error('Failed to fetch %s' % ticker)
+        raise fetchError('Fetching failed')
+
+
+def get_da_req(config, ticker, index_name):
+    key = config.AV_KEY
+    try:
+        time.sleep(15)
+        if(index_name == 'tsxci'):
+            url = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={}&apikey={}'.format(ticker+'.TO', key)
+        else:
+            url = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={}&apikey={}'.format(ticker, key)
+        r = requests.get(url)
+        data = r.json()['Global Quote']
+        df = pd.DataFrame(data, index=[0])
+        df.rename(columns={"02. open": "open",
+                           "03. high": "high",
+                           "04. low": "low",
+                           "05. price": "close",
+                           "06. volume": "volume",
+                           "07. latest trading day": "date",
+                            }, inplace=True)
+        df['adjusted close'] = df['close']
+        df = df[["date","open","high","low","close","adjusted close","volume"]]
+        return df
+    except:
         raise fetchError('Fetching failed')
 
 
