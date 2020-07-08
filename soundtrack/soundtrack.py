@@ -1,5 +1,5 @@
 from .utils.config import Config
-from .utils.fetch import get_daily_adjusted, get_da_req, fetchError
+from .utils.fetch import get_daily_adjusted, get_da_req, get_tmxmoney_daily, fetchError
 from .utils.util import missing_ticker
 from .db.db import Db
 from .db.mapping import map_index, map_quote, map_fix_quote, map_report
@@ -126,7 +126,8 @@ def update(type, today_only, index_name, fix=False, ticker=None):
             else: # Compact Update
                 # This if is tempoarily used because TSXCI request issue
                 if index_name == 'tsxci' and type == 'compact' :
-                    df = get_da_req(Config, ticker ,index_name)
+                    # df = get_da_req(Config, ticker ,index_name) # vendor not working for TSXCI
+                    df = get_tmxmoney_daily(ticker)
                 else:
                     df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
                 model_list = map_quote(df, ticker)

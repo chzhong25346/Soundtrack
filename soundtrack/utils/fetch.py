@@ -8,6 +8,8 @@ from ..utils.util import normalize_Todash
 from datetime import datetime as dt
 from alpha_vantage.timeseries import TimeSeries
 import logging
+import requests, re
+from bs4 import BeautifulSoup
 logger = logging.getLogger('main.fetch')
 
 
@@ -81,6 +83,34 @@ def get_da_req(config, ticker, index_name):
         return df
     except:
         raise fetchError('Fetching failed')
+
+
+def get_tmxmoney_daily(ticker):
+    time.sleep(15)
+    url = 'https://web.tmxmoney.com/quote.php?qm_symbol={}'.format(ticker)
+    try:
+        today = dt.today().strftime("%Y-%m-%d")
+        page = requests.get(url)
+        soup = BeautifulSoup(page.text, 'html.parser')
+        close = float(soup.select("[class~=price] span")[0].get_text())
+        volume = int(re.sub(r"\D", "", soup.select("[class~=col-4] strong")[0].get_text()))
+        open = float(soup.select("[class~=dq-card] strong")[0].get_text())
+        high = float(soup.select("[class~=dq-card] strong")[1].get_text())
+        low = float(soup.select("[class~=dq-card] strong")[6].get_text())
+        df = pd.DataFrame({'date': today,
+                         'close': close,
+                         "adjusted close": close,
+                         'volume': volume,
+                         'open': open,
+                         'high': high,
+                         'low': low,
+                         },index=[0])
+        return df
+    except:
+        raise fetchError('Fetching failed')
+
+
+
 
 
 class fetchError(Exception):
