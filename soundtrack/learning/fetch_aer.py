@@ -13,7 +13,7 @@ logger = logging.getLogger('main.learning')
 def fetch_aer(mode, rtype, s):
     if mode == 'full':
         # Define report path here
-        path = "C:\\Users\\Administrator\\Downloads\\st100\\2020"
+        path = "C:\\Users\\Administrator\\Downloads\\st97\\update"
         data = read_local(rtype, path)
         if rtype == 'st97':
             bulksave_report(rtype, s, data)
@@ -50,13 +50,13 @@ def read_local(rtype, path):
 def get_report_online(rtype):
     dow = (datetime.date.today() - timedelta(days=1)).strftime("%a") # Yesterday, format MON, TUE, WED...
     if rtype == 'st1':
-        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st1.html"
+        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st1"
     elif rtype == 'st49':
-        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st49.html"
+        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st49"
     elif rtype == 'st97':
-        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st97.html"
+        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st97"
     elif rtype == 'st100':
-        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st100.html"
+        url = "https://www.aer.ca/providing-information/data-and-reports/statistical-reports/st100"
     headers={
     'Referer': 'https://itunes.apple.com',
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
@@ -64,7 +64,7 @@ def get_report_online(rtype):
     data = requests.get(url, headers=headers).text
     soup = BeautifulSoup(data, "lxml")
     report_url = None
-    for link in soup.find_all('a'):
+    for link in soup.find_all('a', href=True):
         href = link.get('href')
         if dow.casefold() in href.casefold():
             report_url = href
@@ -123,18 +123,20 @@ def read_report(rtype, file):
         data = {'date': date, 'drill_to_ld': dtl, 're_entry': ree, 'resumption': resu, 'set_surface': ss, 'total': total}
         return data
     if rtype == 'st97':
-        for line in file.text.splitlines():
+        # for line in file.text.splitlines():
+        for line in file.readlines():
             mdate = re.search('(?<=Date:)(.*)', line)
             if mdate:
                 date = parser.parse(re.sub("<.*?>", "", mdate.group(0), flags = re.IGNORECASE))
         try:
-            df = pd.read_html(file.text, header=0, attrs={"align":"center"})[0]
+            df = pd.read_html(file.name, header=0, attrs={"align":"center"})[0]
             df.rename(columns={"Licensee Name": "licensee", "Application Purpose": "purpose", "Category Type Description": "type", "Application Number": "application"}, inplace=True)
             df = df[['licensee', 'purpose', 'type', 'application']]
             df['type'] = df['type'].str.split(' - | < |>', expand = True)
             df['date'] = date
             return df
         except:
+            # print(e)
             pass
     if rtype == 'st100':
         total = 0
