@@ -5,7 +5,7 @@ from .db.db import Db as db
 
 class Index(db.Model):
     __tablename__ = 'index'
-    symbol = db.Column(db.String(6), unique=True, nullable=False, primary_key=True)
+    symbol = db.Column(db.String(10), unique=True, nullable=False, primary_key=True)
     company = db.Column(db.String(60),nullable=False)
     # sector = db.Column(db.String(80),nullable=False)
     # industry = db.Column(db.String(60),nullable=False)
@@ -16,7 +16,7 @@ class Index(db.Model):
 class Quote(db.Model):
     __tablename__ = 'quote'
     id = db.Column(db.String(40), unique=True, nullable=False, primary_key=True)
-    symbol = db.Column(db.String(6), db.ForeignKey("index.symbol"), nullable=False)
+    symbol = db.Column(db.String(10), db.ForeignKey("index.symbol"), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     open = db.Column(db.Float, nullable=True)
     high = db.Column(db.Float, nullable=True)
@@ -30,7 +30,7 @@ class Report(db.Model):
     __tablename__ = 'report'
     id = db.Column(db.String(40), unique=True, nullable=False, primary_key=True)
     date = db.Column(db.DateTime, nullable=False)
-    symbol = db.Column(db.String(6), db.ForeignKey("index.symbol"), nullable=False)
+    symbol = db.Column(db.String(10), db.ForeignKey("index.symbol"), nullable=False)
     yr_high = db.Column(db.Boolean, nullable=True)
     yr_low = db.Column(db.Boolean, nullable=True)
     downtrend = db.Column(db.Boolean, nullable=True)
@@ -48,7 +48,7 @@ class Report(db.Model):
 
 class Holding(db.Model):
     __tablename__ = 'holding'
-    symbol = db.Column(db.String(6), db.ForeignKey("index.symbol"), primary_key=True, nullable=False)
+    symbol = db.Column(db.String(10), db.ForeignKey("index.symbol"), primary_key=True, nullable=False)
     avg_cost = db.Column(db.Float, nullable=True)
     book_value = db.Column(db.Float, nullable=True)
     change_dollar = db.Column(db.Float, nullable=True)

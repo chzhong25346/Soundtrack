@@ -1,5 +1,5 @@
 from .utils.config import Config
-from .utils.fetch import get_daily_adjusted, get_da_req, get_tmxmoney_daily, fetchError
+from .utils.fetch import get_daily_adjusted, get_da_req, get_yahoo_finance_price, fetchError
 from .utils.util import missing_ticker
 from .db.db import Db
 from .db.mapping import map_index, map_quote, map_fix_quote, map_report
@@ -26,22 +26,22 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"u:rsea",["update=", "report=", "simulate=", "emailing=", "aer="])
     except getopt.GetoptError:
-        print('run.py -u <full|compact|fastfix|slowfix> <nasdaq100|tsxci|sp100>')
-        print('run.py -r <nasdaq100|tsxci|sp100>')
-        print('run.py -s <nasdaq100|tsxci|sp100>')
+        print('run.py -u <full|compact|fastfix|slowfix> <nasdaq100|tsxci|sp100|eei|>')
+        print('run.py -r <nasdaq100|tsxci|sp100|eei>')
+        print('run.py -s <nasdaq100|tsxci|sp100|eei>')
         print('run.py -e')
         print('run.py -a')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('run.py -u <full|compact|fastfix|slowfix>  <nasdaq100|tsxci|sp100>')
-            print('run.py -r <nasdaq100|tsxci|sp100>')
-            print('run.py -s <nasdaq100|tsxci|sp100>')
+            print('run.py -u <full|compact|fastfix|slowfix>  <nasdaq100|tsxci|sp100|eei>')
+            print('run.py -r <nasdaq100|tsxci|sp100|eei>')
+            print('run.py -s <nasdaq100|tsxci|sp100|eei>')
             print('run.py -e')
             print('run.py -a')
             sys.exit()
         elif (opt == '-u' and len(argv) < 3):
-            print('run.py -u <full|compact|fastfix|slowfix> <nasdaq100|tsxci|sp100> <ticker>')
+            print('run.py -u <full|compact|fastfix|slowfix> <nasdaq100|tsxci|sp100|eei> <ticker>')
             sys.exit()
         elif (opt == '-a' and len(argv) < 3):
             print('run.py -a <daily|full> <st1(License Issued)|st49(Drilling Activity)|st97(Facility Approval)>')
@@ -128,11 +128,18 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                 if index_name == 'tsxci' and type == 'compact' :
                     df = get_da_req(Config, ticker ,index_name) # vendor not working for TSXCI
                     # df = get_tmxmoney_daily(ticker) # Erros after TMX webpage update, not fixed
+
+                # Extra Exchange Index
+                elif index_name == 'eei' and type == 'compact':
+                    df = get_yahoo_finance_price(ticker)
+
                 else:
                     df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+
                 model_list = map_quote(df, ticker)
                 bulk_save(s, model_list)
                 logger.info("--> %s" % ticker)
+
         except writeError as e:
             logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
         except foundDup as e:
