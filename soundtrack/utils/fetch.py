@@ -136,7 +136,7 @@ def get_yahoo_finance_price(ticker):
         matched = re.search("root.App.main\s+=\s+(\{.*\})",soup_script)
         if matched:
             json_script = json.loads(matched.group(1))
-            data = json_script['context']['dispatcher']['stores']['HistoricalPriceStore']['prices'][1]
+            data = json_script['context']['dispatcher']['stores']['HistoricalPriceStore']['prices'][0]
             df = pd.DataFrame({'date': dt.fromtimestamp(data['date']).strftime("%Y-%m-%d"),
                              'close': round(data['close'], 2),
                              "adjusted close": round(data['adjclose'], 2),
