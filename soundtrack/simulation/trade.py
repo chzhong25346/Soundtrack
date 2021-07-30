@@ -9,36 +9,62 @@ import logging
 from ..db.mapping import map_transaction, map_holding
 from ..db.write import bulk_save
 from ..models import Transaction, Holding
+from ..utils.fetch import get_yahoo_finance_price, get_yahoo_bvps, get_yahoo_cr
 logger = logging.getLogger('main.trade')
 
 
-def execute_order(list,cap,type,s):
-    # BUY or SELL
-    if(type=='buy'):
-        # for each quote as dict in buy list
-        for dict in list:
-            # execute buy function
-            buy(dict,cap,s)
-    elif(type=='sell'):
-        # for each quote as dict in buy list
-        for dict in list:
-            # execute buy function
-            sell(dict,cap,s)
+def execute_order(list, type, s):
+    # Get Db Name
+    db_name = s.bind.url.database
+
+    # for each quote as dict in buy list
+    for dict in list:
+        # ticker,price in list format retrieved from dict
+        ticker, price = zip(*dict.items())
+        # ticker value
+        ticker = ticker[0]
+        # Current Close
+        cp = float(price[0])
+        try:
+            # Fetch and Calculate Capital
+            if db_name == 'tsxci':
+                bvps = get_yahoo_bvps(ticker+'.TO')
+                cr = get_yahoo_cr(ticker+'.TO')
+            elif db_name == 'csi300' and 'SH' in ticker:
+                bvps = get_yahoo_bvps(ticker.replace('SH','SS'))
+                cr = get_yahoo_cr(ticker.replace('SH','SS'))
+            else:
+                bvps = get_yahoo_bvps(ticker)
+                cr = get_yahoo_cr(ticker)
+
+            if cp > 0 and bvps is not None and cr is not None:
+                adjusted_cap = _get_adjusted_cap(cp, bvps, cr)
+                # BUY or SELL
+                if type == 'buy' and adjusted_cap >= cp:
+                    # print(db_name, dict, adjusted_cap)
+                    # execute buy function
+                    buy(dict, adjusted_cap, s)
+                elif type == 'sell':
+                    # print(db_name, dict, adjusted_cap)
+                    # execute buy function
+                    sell(dict, adjusted_cap, s)
+        except:
+            logger.debug('Failed to buy %s-%s ', db_name, ticker)
 
 
-def buy(dict,cap,s):
+def buy(dict, cap, s):
     build_transaction(dict,cap,'buy',s)
     build_holding(dict,s)
 
 
-def sell(dict,cap,engine):
+def sell(dict, cap, engine):
     # if there is already a holding table and found ticker in holding table
-    if build_transaction(dict,cap,'sell',engine) is not False:
+    if build_transaction(dict, cap, 'sell', engine) is not False:
         # then transaction is completed and holding table is able to build and reflush
-        build_holding(dict,engine)
+        build_holding(dict, engine)
 
 
-def build_transaction(dict,cap,type,s):
+def build_transaction(dict, cap, type, s):
     # current date
     date = dt.datetime.today().strftime("%Y-%m-%d")
     # ticker,price in list format retrieved from dict
@@ -57,14 +83,14 @@ def build_transaction(dict,cap,type,s):
         df_existing_holding = pd.read_sql(s.query(Holding).statement, s.bind, index_col='symbol')
         # if there is holding table and ticker is found in holding df
         if (ticker in df_existing_holding.index.unique()):
-            # if sell off all
-            if cap == 10000:
-                # retrieve quntity which is negative
-                qty = (df_existing_holding[(df_existing_holding.index==ticker)].quantity.tolist()[0])*-1
-            # if sell off a half
-            elif cap == 5000:
-                # retrieve quntity which is negative
-                qty = ((df_existing_holding[(df_existing_holding.index==ticker)].quantity.tolist()[0])*-1)/2
+            # # if sell off all
+            # if cap == 10000:
+            # retrieve quntity which is negative
+            qty = (df_existing_holding[(df_existing_holding.index==ticker)].quantity.tolist()[0])*-1
+            # # if sell off a half
+            # elif cap == 5000:
+            #     # retrieve quntity which is negative
+            #     qty = ((df_existing_holding[(df_existing_holding.index==ticker)].quantity.tolist()[0])*-1)/2
             # settlement amount is positive(income)
             settlement = abs(price*qty)
         # if no table or no ticker in holding
@@ -123,3 +149,14 @@ def build_holding(dict,s):
         # delete ticker in holding table - remove.py
         s.query(Holding).filter(Holding.symbol == ticker).delete(synchronize_session=False)
         s.commit()
+
+
+def _get_adjusted_cap(cp, bvps, cr):
+    shares = 1000 / cp
+    delta_ps = cp - bvps
+    delta_cash = shares * delta_ps
+    adjusted_cap = 1000 - delta_cash
+    if cr < 1 and cr > 0:
+        return int(adjusted_cap * cr)
+    elif cr > 1:
+        return int(adjusted_cap)
