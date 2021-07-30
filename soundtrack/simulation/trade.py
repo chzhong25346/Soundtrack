@@ -16,7 +16,6 @@ logger = logging.getLogger('main.trade')
 def execute_order(list, type, s):
     # Get Db Name
     db_name = s.bind.url.database
-
     # for each quote as dict in buy list
     for dict in list:
         # ticker,price in list format retrieved from dict
@@ -26,28 +25,28 @@ def execute_order(list, type, s):
         # Current Close
         cp = float(price[0])
         try:
-            # Fetch and Calculate Capital
-            if db_name == 'tsxci':
-                bvps = get_yahoo_bvps(ticker+'.TO')
-                cr = get_yahoo_cr(ticker+'.TO')
-            elif db_name == 'csi300' and 'SH' in ticker:
-                bvps = get_yahoo_bvps(ticker.replace('SH','SS'))
-                cr = get_yahoo_cr(ticker.replace('SH','SS'))
-            else:
-                bvps = get_yahoo_bvps(ticker)
-                cr = get_yahoo_cr(ticker)
-
-            if cp > 0 and bvps is not None and cr is not None:
-                adjusted_cap = _get_adjusted_cap(cp, bvps, cr)
-                # BUY or SELL
-                if type == 'buy' and adjusted_cap >= cp:
-                    # print(db_name, dict, adjusted_cap)
-                    # execute buy function
-                    buy(dict, adjusted_cap, s)
-                elif type == 'sell':
-                    # print(db_name, dict, adjusted_cap)
-                    # execute buy function
-                    sell(dict, adjusted_cap, s)
+            # BUY
+            if type == 'buy':
+                # Fetch and Calculate Capital
+                if db_name == 'tsxci':
+                    bvps = get_yahoo_bvps(ticker+'.TO')
+                    cr = get_yahoo_cr(ticker+'.TO')
+                elif db_name == 'csi300' and 'SH' in ticker:
+                    bvps = get_yahoo_bvps(ticker.replace('SH','SS'))
+                    cr = get_yahoo_cr(ticker.replace('SH','SS'))
+                else:
+                    bvps = get_yahoo_bvps(ticker)
+                    cr = get_yahoo_cr(ticker)
+                if cp > 0 and bvps is not None and cr is not None:
+                    adjusted_cap = _get_adjusted_cap(cp, bvps, cr)
+                    if adjusted_cap >= cp:
+                        # execute buy function
+                        buy(dict, adjusted_cap, s)
+            # SELL
+            elif cp > 0 and type == 'sell':
+                # print(db_name, dict, adjusted_cap)
+                # execute buy function
+                sell(dict, None, s)
         except:
             logger.debug('Failed to buy %s-%s ', db_name, ticker)
 
