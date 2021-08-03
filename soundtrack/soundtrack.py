@@ -124,18 +124,11 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                 logger.info("--> %s" % ticker)
                 insert_onebyone(s, model_list)
             else: # Compact Update
-                # This if is tempoarily used because TSXCI request issue
-                if index_name == 'tsxci' and type == 'compact' :
-                    df = get_da_req(Config, ticker ,index_name) # vendor not working for TSXCI
-                    # df = get_tmxmoney_daily(ticker) # Erros after TMX webpage update, not fixed
-
                 # Extra Exchange Index
-                elif index_name == 'eei' and type == 'compact':
+                if index_name == 'eei' and type == 'compact':
                     df = get_yahoo_finance_price(ticker)
-
-                else:
-                    df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-
+                # else:
+                #     df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
                 model_list = map_quote(df, ticker)
                 bulk_save(s, model_list)
                 logger.info("--> %s" % ticker)
