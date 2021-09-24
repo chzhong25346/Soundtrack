@@ -155,7 +155,11 @@ def analyze(index_name):
     # db.create_all()
     df = report(s)
     model_list = map_report(Config,df)  ####CHECKPOINT
-    bulk_save(s, model_list)  ####CHECKPOINT
+    try:
+        insert_onebyone(s, model_list)
+    except:
+        pass
+    # bulk_save(s, model_list)  ####CHECKPOINT
 
     # # Proceed with Optimization if index=TSXCI
     # if(index_name == 'tsxci'):
