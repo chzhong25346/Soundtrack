@@ -113,6 +113,7 @@ def get_tmxmoney_daily(ticker):
 
 
 def get_yahoo_finance_price(ticker):
+    time.sleep(5)
     url = 'https://finance.yahoo.com/quote/'+ticker+'/history?p='+ticker
     headers = {"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
 "accept-encoding": "gzip, deflate, br",

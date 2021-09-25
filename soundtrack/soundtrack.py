@@ -99,13 +99,14 @@ def update(type, today_only, index_name, fix=False, ticker=None):
         bulk_save(s, map_index(index_name))
     tickerL = read_ticker(s)
 
+   #--------------------------------------- CHECK POINT
     if (fix == 'slowfix'):
         tickerL = missing_ticker(index_name)
     elif (fix == 'fastfix'):
         tickerL = [ticker]
 
     for ticker in tickerL:
-    # for ticker in ['TOU']: # Fast fix a ticker
+    # for ticker in tickerL[tickerL.index('PAGS'):]: # Fast fix a ticker  ---------- CHECK POint
         try:
             if (fix == 'fastfix'): # Fast Update, bulk
                 df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
