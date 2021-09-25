@@ -2,6 +2,7 @@ import urllib3,certifi
 import pandas as pd
 import json
 import time
+from dateutil.parser import parse
 import requests
 import os
 from ..utils.util import normalize_Todash
@@ -113,7 +114,7 @@ def get_tmxmoney_daily(ticker):
 
 
 def get_yahoo_finance_price(ticker):
-    time.sleep(5)
+    time.sleep(2)
     url = 'https://finance.yahoo.com/quote/'+ticker+'/history?p='+ticker
     headers = {"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
 "accept-encoding": "gzip, deflate, br",
@@ -220,3 +221,29 @@ def _get_headers():
     "sec-fetch-user": "?1",
     "upgrade-insecure-requests": "1",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"}
+
+
+# Stock Chart Fetching
+
+def get_stockcharts_price(ticker):
+    if '-' in ticker:
+        ticker = ticker.replace('-', '%2F')
+    url = 'https://stockcharts.com/j-sum/sum?cmd=symsum&symbol={0}'.format(ticker)
+    try:
+        html = requests.get(url, headers=_get_headers()).text
+    except:
+        time.sleep(30)
+        html = requests.get(url, headers=_get_headers()).text
+    try:
+        data = json.loads(html)
+        df = pd.DataFrame({'date': parse(data['latestTrade']).strftime("%Y-%m-%d"),
+                         'close': data['close'],
+                         "adjusted close": data['close'],
+                         'volume': data['volume'],
+                         'open': data['open'],
+                         'high': data['high'],
+                         'low': data['low'],
+                         }, index=[0])
+        return df
+    except Exception as e:
+        raise fetchError('Fetching failed')

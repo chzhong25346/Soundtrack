@@ -1,5 +1,6 @@
 from .utils.config import Config
-from .utils.fetch import get_daily_adjusted, get_da_req, get_yahoo_finance_price, fetchError
+from .utils.fetch import get_daily_adjusted, get_da_req, get_yahoo_finance_price, fetchError,\
+get_stockcharts_price
 from .utils.util import missing_ticker
 from .db.db import Db
 from .db.mapping import map_index, map_quote, map_fix_quote, map_report
@@ -106,7 +107,8 @@ def update(type, today_only, index_name, fix=False, ticker=None):
         tickerL = [ticker]
 
     for ticker in tickerL:
-    # for ticker in tickerL[tickerL.index('PAGS'):]: # Fast fix a ticker  ---------- CHECK POint
+    # for ticker in tickerL[tickerL.index('VC'):]: # Fast fix a ticker  ---------- CHECK POint
+    # for ticker in ['MLCO']: ---------- CHECK POint
         try:
             if (fix == 'fastfix'): # Fast Update, bulk
                 df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
@@ -127,12 +129,17 @@ def update(type, today_only, index_name, fix=False, ticker=None):
             else: # Compact Update
                 # Extra Exchange Index
                 if index_name == 'eei' and type == 'compact':
-                    df = get_yahoo_finance_price(ticker)
-                # else:
-                #     df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-                model_list = map_quote(df, ticker)
-                bulk_save(s, model_list)
-                logger.info("--> %s" % ticker)
+                    try:
+                        df = get_yahoo_finance_price(ticker)
+                        model_list = map_quote(df, ticker)
+                        bulk_save(s, model_list)
+                        logger.info("--> %s" % ticker)
+                    except:
+                        df = get_stockcharts_price(ticker)
+                        model_list = map_quote(df, ticker)
+                        bulk_save(s, model_list)
+                        logger.info("2--> %s" % ticker)
+
 
         except writeError as e:
             logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
