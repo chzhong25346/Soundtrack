@@ -109,54 +109,54 @@ def update(type, today_only, index_name, fix=False, ticker=None):
     for ticker in tickerL:
     # for ticker in tickerL[tickerL.index('VC'):]: # Fast fix a ticker  ---------- CHECK POint
     # for ticker in ['MLCO']: ---------- CHECK POint
-        # try:
-        if (fix == 'fastfix'): # Fast Update, bulk
-            # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-            if index_name == 'tsxci':
-                df = get_yahoo_finance_price_all(ticker+'.TO')
-            else:
-                df = get_yahoo_finance_price_all(ticker)
-            model_list = []
-            for index, row in df.iterrows():
-                model = map_fix_quote(row, ticker)
-                model_list.append(model)
-            logger.info("--> %s" % ticker)
-            bulk_save(s, model_list)
-        elif (fix == 'slowfix'): # Slow Update, one by one based on log.log
-            # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-            if index_name == 'tsxci':
-                df = get_yahoo_finance_price_all(ticker+'.TO')
-            else:
-                df = get_yahoo_finance_price_all(ticker)
-            model_list = []
-            for index, row in df.iterrows():
-                model = map_fix_quote(row, ticker)
-                model_list.append(model)
-            logger.info("--> %s" % ticker)
-            insert_onebyone(s, model_list)
-        else: # Compact Update
-            # Extra Exchange Index
-            if index_name == 'eei' and type == 'compact':
-                try:
-                    df = get_yahoo_finance_price(ticker)
-                    model_list = map_quote(df, ticker)
-                    bulk_save(s, model_list)
-                    logger.info("--> %s" % ticker)
-                except:
-                    df = get_stockcharts_price(ticker)
-                    model_list = map_quote(df, ticker)
-                    bulk_save(s, model_list)
-                    logger.info("2--> %s" % ticker)
+        try:
+            if (fix == 'fastfix'): # Fast Update, bulk
+                # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+                if index_name == 'tsxci':
+                    df = get_yahoo_finance_price_all(ticker+'.TO')
+                else:
+                    df = get_yahoo_finance_price_all(ticker)
+                model_list = []
+                for index, row in df.iterrows():
+                    model = map_fix_quote(row, ticker)
+                    model_list.append(model)
+                logger.info("--> %s" % ticker)
+                bulk_save(s, model_list)
+            elif (fix == 'slowfix'): # Slow Update, one by one based on log.log
+                # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+                if index_name == 'tsxci':
+                    df = get_yahoo_finance_price_all(ticker+'.TO')
+                else:
+                    df = get_yahoo_finance_price_all(ticker)
+                model_list = []
+                for index, row in df.iterrows():
+                    model = map_fix_quote(row, ticker)
+                    model_list.append(model)
+                logger.info("--> %s" % ticker)
+                insert_onebyone(s, model_list)
+            else: # Compact Update
+                # Extra Exchange Index
+                if index_name == 'eei' and type == 'compact':
+                    try:
+                        df = get_yahoo_finance_price(ticker)
+                        model_list = map_quote(df, ticker)
+                        bulk_save(s, model_list)
+                        logger.info("--> %s" % ticker)
+                    except:
+                        df = get_stockcharts_price(ticker)
+                        model_list = map_quote(df, ticker)
+                        bulk_save(s, model_list)
+                        logger.info("2--> %s" % ticker)
 
 
-        # except writeError as e:
-        #     logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
-        # except foundDup as e:
-        #     logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
-        # except fetchError as e:
-        #     logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
-        # except:
-        #     logger.error("Updating failed - (index_name,%s)" % (index_name,ticker))
+        except writeError as e:
+            logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
+        except foundDup as e:
+            logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
+        except fetchError as e:
+            logger.error("%s - (%s,%s)" % (e.value, index_name, ticker))
+        except:
+            logger.error("Updating failed - (index_name,%s)" % (index_name,ticker))
     s.close()
 
 
