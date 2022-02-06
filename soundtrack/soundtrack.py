@@ -129,7 +129,7 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                 else:
                     df = get_yahoo_finance_price_all(ticker)
                 model_list = []
-                if len(model_list) > 0:
+                if not df.empty:
                     for index, row in df.iterrows():
                         model = map_fix_quote(row, ticker)
                         model_list.append(model)
