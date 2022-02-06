@@ -129,11 +129,14 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                 else:
                     df = get_yahoo_finance_price_all(ticker)
                 model_list = []
-                for index, row in df.iterrows():
-                    model = map_fix_quote(row, ticker)
-                    model_list.append(model)
-                logger.info("--> %s" % ticker)
-                insert_onebyone(s, model_list)
+                if len(model_list) > 0:
+                    for index, row in df.iterrows():
+                        model = map_fix_quote(row, ticker)
+                        model_list.append(model)
+                    logger.info("--> %s" % ticker)
+                    insert_onebyone(s, model_list)
+                else:
+                    logger.info("--> (%s, not exist)" % ticker)
             else: # Compact Update
                 # Extra Exchange Index
                 if index_name == 'eei' and type == 'compact':
