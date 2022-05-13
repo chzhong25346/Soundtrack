@@ -101,14 +101,14 @@ def update(type, today_only, index_name, fix=False, ticker=None):
     tickerL = read_ticker(s)
 
    #--------------------------------------- CHECK POINT
-    if (fix == 'slowfix'):
-        tickerL = missing_ticker(index_name)
-    elif (fix == 'fastfix'):
+    # if (fix == 'slowfix'):
+        # tickerL = missing_ticker(index_name)
+    if (fix == 'fastfix'):
         tickerL = [ticker]
 
     for ticker in tickerL:
-    # for ticker in tickerL[tickerL.index('VC'):]: # Fast fix a ticker  ---------- CHECK POint
-    # for ticker in ['HRX.TO']: #---------- CHECK POint
+    # for ticker in tickerL[tickerL.index('D'):]: # Fast fix a ticker  ---------- CHECK POint
+    # for ticker in ['D']: #---------- CHECK POint
         try:
             if (fix == 'fastfix'): # Fast Update, bulk
                 # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
