@@ -27,7 +27,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"u:rsea",["update=", "report=", "simulate=", "emailing=", "aer="])
     except getopt.GetoptError:
-        print('run.py -u <full|compact|fastfix|slowfix> <nasdaq100|tsxci|sp100|eei|>')
+        print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei>')
         print('run.py -r <nasdaq100|tsxci|sp100|eei>')
         print('run.py -s <nasdaq100|tsxci|sp100|eei>')
         print('run.py -e')
@@ -35,14 +35,14 @@ def main(argv):
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('run.py -u <full|compact|fastfix|slowfix>  <nasdaq100|tsxci|sp100|eei>')
+            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing>  <nasdaq100|tsxci|sp100|eei>')
             print('run.py -r <nasdaq100|tsxci|sp100|eei>')
             print('run.py -s <nasdaq100|tsxci|sp100|eei>')
             print('run.py -e')
             print('run.py -a')
             sys.exit()
         elif (opt == '-u' and len(argv) < 3):
-            print('run.py -u <full|compact|fastfix|slowfix> <nasdaq100|tsxci|sp100|eei> <ticker>')
+            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei> <ticker>')
             sys.exit()
         elif (opt == '-a' and len(argv) < 3):
             print('run.py -a <daily|full> <st1(License Issued)|st49(Drilling Activity)|st97(Facility Approval)>')
@@ -63,6 +63,11 @@ def main(argv):
                 type = 'full' # fixing requires full data
                 today_only = False
                 update(type, today_only, index_name, fix='slowfix')  # Compact update for today
+            elif(arg == 'slowfix_missing'):
+                index_name = argv[2]
+                type = 'full' # fixing requires full data
+                today_only = False
+                update(type, today_only, index_name, fix='slowfix_missing')  # Compact update for today
             elif(arg == 'fastfix'):
                 index_name = argv[2]
                 type = 'full' # fixing requires full data
@@ -100,10 +105,10 @@ def update(type, today_only, index_name, fix=False, ticker=None):
         bulk_save(s, map_index(index_name))
     tickerL = read_ticker(s)
 
-   #--------------------------------------- CHECK POINT
-    # if (fix == 'slowfix'):
-        # tickerL = missing_ticker(index_name)
-    if (fix == 'fastfix'):
+   # --------------------------------------- CHECK POINT
+    if (fix == 'slowfix_missing'):
+        tickerL = missing_ticker(index_name)
+    elif (fix == 'fastfix'):
         tickerL = [ticker]
 
     for ticker in tickerL:
@@ -122,7 +127,7 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                     model_list.append(model)
                 logger.info("--> %s" % ticker)
                 bulk_save(s, model_list)
-            elif (fix == 'slowfix'): # Slow Update, one by one based on log.log
+            elif (fix == 'slowfix' or fix == 'slowfix_missing' ): # Slow Update, one by one based on log.log
                 # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
                 if index_name == 'tsxci':
                     df = get_yahoo_finance_price_all(ticker+'.TO')
