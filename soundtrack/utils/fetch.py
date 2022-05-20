@@ -128,10 +128,10 @@ def get_yahoo_finance_price(ticker):
 "upgrade-insecure-requests": "1",
 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"}
     try:
-        html = requests.get(url, headers=headers).text
+        html = requests.get(url, headers=headers, timeout=(3.05, 21)).text
     except:
-        time.sleep(30)
-        html = requests.get(url, headers=headers).text
+        time.sleep(10)
+        html = requests.get(url, headers=headers, timeout=(3.05, 21)).text
     try:
         soup = BeautifulSoup(html,'html.parser')
         soup_script = soup.find("script",text=re.compile("root.App.main")).text
@@ -252,10 +252,10 @@ def get_stockcharts_price(ticker):
 def get_yahoo_finance_price_all(ticker):
     url = 'https://finance.yahoo.com/quote/'+ticker+'/history?p='+ticker
     try:
-        html = requests.get(url, headers=_get_headers()).text
+        html = requests.get(url, headers=_get_headers(), timeout=(3.05, 21)).text
     except:
-        time.sleep(30)
-        html = requests.get(url, headers=_get_headers()).text
+        time.sleep(109)
+        html = requests.get(url, headers=_get_headers(), timeout=(3.05, 21)).text
     try:
         soup = BeautifulSoup(html,'html.parser')
         soup_script = soup.find("script",text=re.compile("root.App.main")).text

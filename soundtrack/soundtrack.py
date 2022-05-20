@@ -112,7 +112,7 @@ def update(type, today_only, index_name, fix=False, ticker=None):
         tickerL = [ticker]
 
     for ticker in tickerL:
-    # for ticker in tickerL[tickerL.index('D'):]: # Fast fix a ticker  ---------- CHECK POint
+    # for ticker in tickerL[tickerL.index('UNH'):]: # Fast fix a ticker  ---------- CHECK POint
     # for ticker in ['D']: #---------- CHECK POint
         try:
             if (fix == 'fastfix'): # Fast Update, bulk
