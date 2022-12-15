@@ -116,17 +116,17 @@ def get_tmxmoney_daily(ticker):
 def get_yahoo_finance_price(ticker):
     time.sleep(5)
     url = 'https://finance.yahoo.com/quote/'+ticker+'/history?p='+ticker
-    headers = {"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    headers = {"accept": "*/*",
 "accept-encoding": "gzip, deflate, br",
-"accept-language": "en-GB,en;q=0.9,en-US;q=0.8,ml;q=0.7",
-"cache-control": "max-age=0",
+"accept-language": "en;q=0.9",
+"cache-control": "no-cache",
 "dnt": "1",
 "sec-fetch-dest": "document",
 "sec-fetch-mode": "navigate",
 "sec-fetch-site": "none",
 "sec-fetch-user": "?1",
 "upgrade-insecure-requests": "1",
-"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"}
+"user-agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"}
     try:
         html = requests.get(url, headers=headers, timeout=(3.05, 21)).text
     except:
@@ -210,17 +210,17 @@ def get_yahoo_cr(ticker):
 
 
 def _get_headers():
-    return {"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    return {"accept": "*/*",
     "accept-encoding": "gzip, deflate, br",
     "accept-language": "en-GB,en;q=0.9,en-US;q=0.8,ml;q=0.7",
-    "cache-control": "max-age=0",
+    "cache-control": "no-cache",
     "dnt": "1",
     "sec-fetch-dest": "document",
     "sec-fetch-mode": "navigate",
     "sec-fetch-site": "none",
     "sec-fetch-user": "?1",
     "upgrade-insecure-requests": "1",
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36"}
+    "user-agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"}
 
 
 # Stock Chart Fetching
