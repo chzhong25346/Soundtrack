@@ -11,6 +11,7 @@ from alpha_vantage.timeseries import TimeSeries
 import logging
 import requests, re
 from bs4 import BeautifulSoup
+import yfinance as yf
 logger = logging.getLogger('main.fetch')
 
 
@@ -114,44 +115,23 @@ def get_tmxmoney_daily(ticker):
 
 
 def get_yahoo_finance_price(ticker):
-    time.sleep(5)
-    url = 'https://finance.yahoo.com/quote/'+ticker+'/history?p='+ticker
-    headers = {"accept": "*/*",
-"accept-encoding": "gzip, deflate, br",
-"accept-language": "en;q=0.9",
-"cache-control": "no-cache",
-"dnt": "1",
-"sec-fetch-dest": "document",
-"sec-fetch-mode": "navigate",
-"sec-fetch-site": "none",
-"sec-fetch-user": "?1",
-"upgrade-insecure-requests": "1",
-"user-agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"}
+    time.sleep(2)
     try:
-        html = requests.get(url, headers=headers, timeout=(3.05, 21)).text
-    except:
-        time.sleep(10)
-        html = requests.get(url, headers=headers, timeout=(3.05, 21)).text
-    try:
-        soup = BeautifulSoup(html,'html.parser')
-        soup_script = soup.find("script",text=re.compile("root.App.main")).text
-        matched = re.search("root.App.main\s+=\s+(\{.*\})",soup_script)
-        if matched:
-            json_script = json.loads(matched.group(1))
-            data = json_script['context']['dispatcher']['stores']['HistoricalPriceStore']['prices'][0]
-            df = pd.DataFrame({'date': dt.fromtimestamp(data['date']).strftime("%Y-%m-%d"),
-                             'close': round(data['close'], 2),
-                             "adjusted close": round(data['adjclose'], 2),
-                             'volume': data['volume'],
-                             'open': round(data['open'], 2),
-                             'high': round(data['high'], 2),
-                             'low': round(data['low'], 2),
-                             }, index=[0])
-            return df
-        else:
-            raise fetchError('Fetching failed')
+        t = yf.Ticker(ticker)
+        data = t.history(period="1d")
+        data.reset_index(inplace=True)
+        df = pd.DataFrame({'date': data['Date'].dt.strftime("%Y-%m-%d"),
+                         'close': round(data['Close'], 2),
+                         "adjusted close": round(data['Close'], 2),
+                         'volume': data['Volume'],
+                         'open': round(data['Open'], 2),
+                         'high': round(data['High'], 2),
+                         'low': round(data['Low'], 2),
+                         }, index=[0])
+        return df
     except Exception as e:
         raise fetchError('Fetching failed')
+
 
 
 
@@ -250,35 +230,15 @@ def get_stockcharts_price(ticker):
 
 
 def get_yahoo_finance_price_all(ticker):
-    url = 'https://finance.yahoo.com/quote/'+ticker+'/history?p='+ticker
+    time.sleep(2)
     try:
-        html = requests.get(url, headers=_get_headers(), timeout=(3.05, 21)).text
-    except:
-        time.sleep(109)
-        html = requests.get(url, headers=_get_headers(), timeout=(3.05, 21)).text
-    try:
-        soup = BeautifulSoup(html,'html.parser')
-        soup_script = soup.find("script",text=re.compile("root.App.main")).text
-        matched = re.search("root.App.main\s+=\s+(\{.*\})",soup_script)
-        if matched:
-            json_script = json.loads(matched.group(1))
-            data = json_script['context']['dispatcher']['stores']['HistoricalPriceStore']['prices']
-            df = pd.DataFrame(columns=['date', 'close', 'adjusted close', 'volume', 'open', 'high', 'low'])
-            for d in data:
-                try:
-                    df_temp = pd.DataFrame({'date': dt.fromtimestamp(d['date']).strftime("%Y-%m-%d"),
-                                     'close': round(d['close'], 2),
-                                     "adjusted close": round(d['adjclose'], 2),
-                                     'volume': d['volume'],
-                                     'open': round(d['open'], 2),
-                                     'high': round(d['high'], 2),
-                                     'low': round(d['low'], 2),
-                                     }, index=[0])
-                    df = df.append(df_temp)
-                except:
-                    pass
-            return df.drop_duplicates(subset='date', keep="last")
-        else:
-            return None
+        t = yf.Ticker(ticker)
+        data = t.history(period="5y")
+        data.reset_index(inplace=True)
+        data.rename(columns={"Date": "date", "Open": "open","High": "high","Low":"low","Close":"close","Volume":"volume"}, inplace=True)
+        data['adjusted close'] = data['close']
+        data = data[["date","open","high","low","close","volume","adjusted close"]]
+        data['date'] = data['date'].dt.strftime("%Y-%m-%d")
+        return data.drop_duplicates(subset='date', keep="last")
     except:
         return None
