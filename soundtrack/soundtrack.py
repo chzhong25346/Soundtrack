@@ -147,8 +147,8 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                 # Extra Exchange Index
                 if index_name == 'eei' and type == 'compact':
                     try:
-                        # df = get_yahoo_finance_price(ticker)
-                        df = get_stockcharts_price(ticker)
+                        df = get_yahoo_finance_price(ticker)
+                        # df = get_stockcharts_price(ticker)
                         model_list = map_quote(df, ticker)
                         bulk_save(s, model_list)
                         logger.info("--> %s" % ticker)

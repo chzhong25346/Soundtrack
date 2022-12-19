@@ -11,7 +11,7 @@ from alpha_vantage.timeseries import TimeSeries
 import logging
 import requests, re
 from bs4 import BeautifulSoup
-# import yfinance as yf
+import yfinance as yf
 logger = logging.getLogger('main.fetch')
 
 
