@@ -117,11 +117,11 @@ def update(type, today_only, index_name, fix=False, ticker=None):
         try:
 
             if (fix == 'fastfix'): # Fast Update, bulk
-                # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-                if index_name == 'tsxci':
-                    df = get_yahoo_finance_price_all(ticker+'.TO')
-                else:
-                    df = get_yahoo_finance_price_all(ticker)
+                df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+                # if index_name == 'tsxci':
+                #     df = get_yahoo_finance_price_all(ticker+'.TO')
+                # else:
+                #     df = get_yahoo_finance_price_all(ticker)
                 model_list = []
                 for index, row in df.iterrows():
                     model = map_fix_quote(row, ticker)
@@ -129,11 +129,11 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                 logger.info("--> %s" % ticker)
                 bulk_save(s, model_list)
             elif (fix == 'slowfix' or fix == 'slowfix_missing' ): # Slow Update, one by one based on log.log
-                # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-                if index_name == 'tsxci':
-                    df = get_yahoo_finance_price_all(ticker+'.TO')
-                else:
-                    df = get_yahoo_finance_price_all(ticker)
+                df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+                # if index_name == 'tsxci':
+                #     df = get_yahoo_finance_price_all(ticker+'.TO')
+                # else:
+                #     df = get_yahoo_finance_price_all(ticker)
                 model_list = []
                 if df is not None:
                     for index, row in df.iterrows():
@@ -147,7 +147,8 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                 # Extra Exchange Index
                 if index_name == 'eei' and type == 'compact':
                     try:
-                        df = get_yahoo_finance_price(ticker)
+                        # df = get_yahoo_finance_price(ticker)
+                        df = get_stockcharts_price(ticker)
                         model_list = map_quote(df, ticker)
                         bulk_save(s, model_list)
                         logger.info("--> %s" % ticker)
