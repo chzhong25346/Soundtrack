@@ -229,11 +229,11 @@ def get_stockcharts_price(ticker):
         raise fetchError('Fetching failed')
 
 
-def get_yahoo_finance_price_all(ticker):
+def get_yahoo_finance_price_all(ticker, length="5y"):
     time.sleep(2)
     try:
         t = yf.Ticker(ticker)
-        data = t.history(period="5y")
+        data = t.history(period=length)
         data.reset_index(inplace=True)
         data.rename(columns={"Date": "date", "Open": "open","High": "high","Low":"low","Close":"close","Volume":"volume"}, inplace=True)
         data['adjusted close'] = data['close']

@@ -1,22 +1,23 @@
-from .utils.config import Config
-from .utils.fetch import get_daily_adjusted, get_da_req, get_yahoo_finance_price, fetchError,\
-get_stockcharts_price, get_yahoo_finance_price_all
-from .utils.util import missing_ticker
+import getopt
+import logging.config
+import math
+import sys
+import time
+
 from .db.db import Db
 from .db.mapping import map_index, map_quote, map_fix_quote, map_report
+from .db.read import read_ticker, has_index
 from .db.write import bulk_save, insert_onebyone, writeError, foundDup
-from .db.read import read_ticker, has_index, read_exist
 from .email.email import sendMail
+from .learning.fetch_aer import fetch_aer
 from .report.report import report
 # from .report.optimize import optimize
 from .simulation.simulator import simulator
-from .learning.fetch_aer import fetch_aer
-import logging
-import logging.config
-import getopt
-import time
-import math
-import os, sys
+from .utils.config import Config
+from .utils.fetch import get_daily_adjusted, get_yahoo_finance_price, fetchError, \
+    get_stockcharts_price, get_yahoo_finance_price_all
+from .utils.util import missing_ticker
+
 logging.config.fileConfig('soundtrack/log/logging.conf')
 logger = logging.getLogger('main')
 
@@ -27,7 +28,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"u:rsea",["update=", "report=", "simulate=", "emailing=", "aer="])
     except getopt.GetoptError:
-        print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei>')
+        print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei|commodity>')
         print('run.py -r <nasdaq100|tsxci|sp100|eei>')
         print('run.py -s <nasdaq100|tsxci|sp100|eei>')
         print('run.py -e')
@@ -35,14 +36,14 @@ def main(argv):
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing>  <nasdaq100|tsxci|sp100|eei>')
+            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing>  <nasdaq100|tsxci|sp100|eei|commodity(all/ticker)>')
             print('run.py -r <nasdaq100|tsxci|sp100|eei>')
             print('run.py -s <nasdaq100|tsxci|sp100|eei>')
             print('run.py -e')
             print('run.py -a')
             sys.exit()
         elif (opt == '-u' and len(argv) < 3):
-            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei> <ticker>')
+            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei|commodity> <ticker>')
             sys.exit()
         elif (opt == '-a' and len(argv) < 3):
             print('run.py -a <daily|full> <st1(License Issued)|st49(Drilling Activity)|st97(Facility Approval)>')
@@ -62,7 +63,7 @@ def main(argv):
                 index_name = argv[2]
                 type = 'full' # fixing requires full data
                 today_only = False
-                update(type, today_only, index_name, fix='slowfix')  # Compact update for today
+                update(type, today_only, index_name, fix='slowfix', ticker=argv[3])  # Compact update for today
             elif(arg == 'slowfix_missing'):
                 index_name = argv[2]
                 type = 'full' # fixing requires full data
@@ -108,6 +109,11 @@ def update(type, today_only, index_name, fix=False, ticker=None):
    # --------------------------------------- CHECK POINT
     if (fix == 'slowfix_missing'):
         tickerL = missing_ticker(index_name)
+    elif (fix == 'slowfix'):
+        if ticker == 'all':
+            pass
+        else:
+            tickerL = [ticker]
     elif (fix == 'fastfix'):
         tickerL = [ticker]
 
@@ -117,11 +123,8 @@ def update(type, today_only, index_name, fix=False, ticker=None):
         try:
 
             if (fix == 'fastfix'): # Fast Update, bulk
-                df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-                # if index_name == 'tsxci':
-                #     df = get_yahoo_finance_price_all(ticker+'.TO')
-                # else:
-                #     df = get_yahoo_finance_price_all(ticker)
+                # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+                df = get_yahoo_finance_price_all(ticker+'.TO')
                 model_list = []
                 for index, row in df.iterrows():
                     model = map_fix_quote(row, ticker)
@@ -129,11 +132,13 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                 logger.info("--> %s" % ticker)
                 bulk_save(s, model_list)
             elif (fix == 'slowfix' or fix == 'slowfix_missing' ): # Slow Update, one by one based on log.log
-                df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-                # if index_name == 'tsxci':
-                #     df = get_yahoo_finance_price_all(ticker+'.TO')
-                # else:
-                #     df = get_yahoo_finance_price_all(ticker)
+                # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
+
+                if index_name == 'commodity':
+                    # Commodity remove latest day
+                    df = get_yahoo_finance_price_all(ticker, length="1mo").iloc[:-1,:]
+                else:
+                    df = get_yahoo_finance_price_all(ticker, length="1mo")
                 model_list = []
                 if df is not None:
                     for index, row in df.iterrows():
