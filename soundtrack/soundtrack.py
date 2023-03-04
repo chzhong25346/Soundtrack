@@ -28,7 +28,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"u:rsea",["update=", "report=", "simulate=", "emailing=", "aer="])
     except getopt.GetoptError:
-        print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei|commodity>')
+        print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei|commodity|market>')
         print('run.py -r <nasdaq100|tsxci|sp100|eei>')
         print('run.py -s <nasdaq100|tsxci|sp100|eei>')
         print('run.py -e')
@@ -36,14 +36,14 @@ def main(argv):
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing>  <nasdaq100|tsxci|sp100|eei|commodity(all/ticker)>')
+            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing>  <nasdaq100|tsxci|sp100|eei|commodity|market(all/ticker)>')
             print('run.py -r <nasdaq100|tsxci|sp100|eei>')
             print('run.py -s <nasdaq100|tsxci|sp100|eei>')
             print('run.py -e')
             print('run.py -a')
             sys.exit()
         elif (opt == '-u' and len(argv) < 3):
-            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei|commodity> <ticker>')
+            print('run.py -u <full|compact|fastfix|slowfix|slowfix_missing> <nasdaq100|tsxci|sp100|eei|commodity|market(all/ticker)>')
             sys.exit()
         elif (opt == '-a' and len(argv) < 3):
             print('run.py -a <daily|full> <st1(License Issued)|st49(Drilling Activity)|st97(Facility Approval)>')
@@ -134,7 +134,7 @@ def update(type, today_only, index_name, fix=False, ticker=None):
             elif (fix == 'slowfix' or fix == 'slowfix_missing' ): # Slow Update, one by one based on log.log
                 # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
 
-                if index_name == 'commodity':
+                if index_name == 'commodity' or index_name == 'market':
                     # Commodity remove latest day
                     df = get_yahoo_finance_price_all(ticker, length="1mo").iloc[:-1,:]
                 else:
