@@ -17,6 +17,7 @@ from .utils.config import Config
 from .utils.fetch import get_daily_adjusted, get_yahoo_finance_price, fetchError, \
     get_stockcharts_price, get_yahoo_finance_price_all
 from .utils.util import missing_ticker
+from datetime import date
 
 logging.config.fileConfig('soundtrack/log/logging.conf')
 logger = logging.getLogger('main')
@@ -133,8 +134,9 @@ def update(type, today_only, index_name, fix=False, ticker=None):
                 bulk_save(s, model_list)
             elif (fix == 'slowfix' or fix == 'slowfix_missing' ): # Slow Update, one by one based on log.log
                 # df = get_daily_adjusted(Config,ticker,type,today_only,index_name)
-
-                if index_name == 'commodity' or index_name == 'market':
+                if index_name == 'market' and date.today().weekday() == 5:
+                    df = get_yahoo_finance_price_all(ticker, length="1mo")
+                elif index_name == 'commodity' or index_name == 'market':
                     # Commodity remove latest day
                     df = get_yahoo_finance_price_all(ticker, length="1mo").iloc[:-1,:]
                 else:
