@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$USER_HOME$/PycharmProjects/Skylantern/.idea/Skylantern.iml" filepath="$USER_HOME$/PycharmProjects/Skylantern/.idea/Skylantern.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Soundtrack.iml" filepath="$PROJECT_DIR$/.idea/Soundtrack.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Stride/.idea/Stride.iml" filepath="$PROJECT_DIR$/../Stride/.idea/Stride.iml" />
     </modules>
   </component>
 </project>

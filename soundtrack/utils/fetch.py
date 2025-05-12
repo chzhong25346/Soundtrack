@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import time
 from dateutil.parser import parse
+from curl_cffi import requests as curl_requests
 import requests
 import os
 from ..utils.util import normalize_Todash
@@ -116,8 +117,9 @@ def get_tmxmoney_daily(ticker):
 
 def get_yahoo_finance_price(ticker):
     time.sleep(2)
+    session = curl_requests.Session(impersonate="chrome99")
     try:
-        t = yf.Ticker(ticker)
+        t = yf.Ticker(ticker, session=session)
         data = t.history(period="1d")
         data.reset_index(inplace=True)
         df = pd.DataFrame({'date': data['Date'].dt.strftime("%Y-%m-%d"),
@@ -231,8 +233,9 @@ def get_stockcharts_price(ticker):
 
 def get_yahoo_finance_price_all(ticker, length="5y"):
     time.sleep(2)
+    session = curl_requests.Session(impersonate="chrome99")
     try:
-        t = yf.Ticker(ticker)
+        t = yf.Ticker(ticker, session=session)
         data = t.history(period=length)
         data.reset_index(inplace=True)
         data.rename(columns={"Date": "date", "Open": "open","High": "high","Low":"low","Close":"close","Volume":"volume"}, inplace=True)
